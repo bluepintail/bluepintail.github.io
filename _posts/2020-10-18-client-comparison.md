@@ -1,11 +1,9 @@
-# Client comparison
 Using the client data aggregated in the [data pre-processing notebook](data_prep.ipynb), we'll now take a look at how the different clients active on the Medalla testnet compared.
 
 Of course, as already mentioned, this analysis relies on the truthfulness of validators' block graffiti. It is also a snapshot in time. All the eth2 clients have continued to be developed and refined throughout the period under review. Problems apparent in the earlier phases may already have been resolved.
 
 <details>
-<summary> ``imports`` </summary>
-<p>
+<summary><code>imports</code></summary>
 
 ```python
 # imports
@@ -18,11 +16,10 @@ import pandas as pd
 from chaindtools import *
 ```
 
-</p>
 </details>
 
 <details>
-<summary> open/restart connection to chaind database </summary>
+<summary><code>open/restart connection to chaind database</code></summary>
 
 ```python
 # open/restart connection to chaind database
@@ -38,7 +35,7 @@ cursor = connection.cursor()
 </details>
 
 <details>
-<summary> get info about dataset and validators </summary>
+<summary><code>get info about dataset and validators</code></summary>
 
 ```python
 # get info about dataset and validators
@@ -66,6 +63,8 @@ validators = [{"activation_eligibility_epoch": r[0],
 ## Client proportions
 It turns out that the majority of validators (71%) did not provide information in block graffiti which could be used to identify the client used. This includes all validators which did not propose any blocks, since graffiti is only supplied by the block producer. For this reason, validators who were *absent* or those which did not participate long enough to propose any blocks, are excluded.
 
+<details>
+<summary><code>determine validator clients from block graffiti</code></summary>
 
 ```python
 # determine validator clients from block graffiti
@@ -154,6 +153,8 @@ plt.title('Validator client share (where available from block graffiti)')
 plt.show()
 ```
 
+</details>
+
     Number of validators: 80328
     22347 provided client info (27.8%)
     41693 no info (51.9%)
@@ -180,7 +181,8 @@ plt.show()
 ![png]({{ "/assets/images/output_5_3.png" }})
     
 
-
+<details>
+<summary><code>calculate participation rates, mean inclusion distance and attestation effectiveness for each client</code></summary>
 
 ```python
 # calculate participation rates, mean inclusion distance and attestation effectiveness for each client
@@ -238,6 +240,8 @@ for client in clients:
 print(f"Pass completed in {elapsed}." + ' ' * 50)
 ```
 
+</details>
+
     Pass completed in 02:11:13.                                                  
 
 
@@ -246,6 +250,8 @@ Let's have a look at how the participation rates for the different clients compa
 
 The lines below have also been smoothed with a 16-epoch moving average, as they are a bit too fuzzy to compare between clients otherwise.
 
+<details>
+<summary><code>calculate/describe/plot participation rates by client</code></summary>
 
 ```python
 # calculate/describe/plot participation rates by client
@@ -288,6 +294,7 @@ plt.ylabel('Participation rate (%)')
 plt.show()
 ```
 
+</details>
                   prysm    lighthouse          teku        nimbus
     count  15238.000000  15238.000000  15238.000000  15238.000000
     mean      87.635560     77.818117     85.422726     50.087501
@@ -324,6 +331,9 @@ plt.show()
 
 ## Mean inclusion distance
 Let's repeat the plot of mean inclusion distance we previously saw for the network as a whole, this time, broken down by client. Again the data is smoothed with a 16-epoch moving average to make it easier to see what's going on.
+
+<details>
+<summary><code>graphs and stats for mean inclusion distance</summary></code>
 
 
 ```python
@@ -362,6 +372,8 @@ plt.xlabel('epoch')
 plt.ylabel('Mean inclusion distance (slots)')
 plt.show()
 ```
+
+</details>
 
     Mean inclusion distance statistics
     

@@ -2,6 +2,7 @@
 # front matter for Jekyll
 title: "Data Pre-processing for the Medalla Data Challenge"
 permalink: "/medalla-data-prep/"
+toc: true
 ---
 This article documents the pre-processing steps carried out for an entry into the [Medalla data challenge](https://ethereum.org/en/eth2/get-involved/medalla-data-challenge/). Visualisations and analysis of this data can be found in the following notebooks:
 

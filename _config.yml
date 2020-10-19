@@ -85,9 +85,9 @@ social:
 
 # Analytics
 analytics:
-  provider               : false # false (default), "google", "google-universal", "google-gtag", "custom"
+  provider               : "google-gtag" # false (default), "google", "google-universal", "google-gtag", "custom"
   google:
-    tracking_id          :
+    tracking_id          : "UA-180758511-1"
     anonymize_ip         : # true, false (default)
 
 
@@ -180,7 +180,7 @@ markdown_ext: "markdown,mkdown,mkdn,mkd,md"
 
 
 # Conversion
-#markdown: kramdown
+# markdown: kramdown
 markdown: CommonMarkGhPages
 highlighter: rouge
 lsi: false

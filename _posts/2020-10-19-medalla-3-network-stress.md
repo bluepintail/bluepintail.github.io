@@ -3,12 +3,13 @@
 title: "The Medalla Network Under Stress"
 permalink: "/medalla-network-stress/"
 ---
-One of the most obvious features of the data presented in the [previous notebook](/medalla-validator-taxonomy) was the crash in participation rate which occurred at the time of the [roughtime incident](https://medium.com/prysmatic-labs/eth2-medalla-testnet-incident-f7fbc3cc934a). A number of important lessons were identified from this incident, such as:
+One of the most obvious features of the data presented in the [previous article](/medalla-validator-taxonomy) was the crash in participation rate which occurred at the time of the [roughtime incident](https://medium.com/prysmatic-labs/eth2-medalla-testnet-incident-f7fbc3cc934a). A number of important lessons were identified from this incident, such as:
 - the importance of client diversity;
 - the perils of depending on centralised service providers for consensus-critical information;
 - the value of easy and seemless switching between clients for validators;
 - the importance of rigorous release testing, even (especially) during a crisis;
 - \[and many others\].
+
 But of course, Medalla is a testnet, and exposing such potential weaknesses is one of the main reasons for running it. From the perspective of getting data and improving our understanding of how the network behaves under severe stress, it was an unexpected gift.
 
 We've already seen from the impact on the participation rate one of the ways in which network stress can manifest itself. In this notebook, we will look at a series of other metrics which may contain valuable information about network performance, providing cues about bugs or other problems.
@@ -160,7 +161,7 @@ plt.show()
 
 </details>
 
-![png](/assets/images/medalla-network-stress_files/medalla-network-stress_8_0.png)
+![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_8_0.png)
 
 ## Mean inclusion distance
 Another metric we can use to look at the health of the network is how quickly validators are able to have their attestations included into the beacon chain. As mentioned above, this is called the *inclusion distance*, which is the number of slots it takes for an attestatation to be included in a canonical block. By averaging this across all validators who successfully attested in a given epoch, we get a quantity called the *mean inclusion distance*. We already calculated this in the second pass through attestations above.
@@ -188,7 +189,7 @@ plt.show()
 
 </details>
 
-![png](/assets/images/medalla-network-stress_files/medalla-network-stress_10_0.png)
+![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_10_0.png)
 
 ## Attestation Effectiveness
 A metric that effectively combines participation rate and inclusion distance into a single score describing a validator's performance is *attestation effectiveness*, which has been defined by [Jim McDonald](https://www.attestant.io/posts/defining-attestation-effectiveness/) as the ratio between the maximum reward a validator could have received for full prompt participation, and the reward they actually received. The protocol penalises late attestations, scaling the attestation reward by the inverse of the inclusion distance.\*
@@ -214,7 +215,7 @@ plt.show()
 
 </details>
 
-![png](/assets/images/medalla-network-stress_files/medalla-network-stress_12_0.png)
+![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_12_0.png)
 
 ## Attestation Accuracy
 
@@ -237,7 +238,7 @@ plt.show()
 
 </details>
 
-![png](/assets/images/medalla-network-stress_files/medalla-network-stress_14_0.png)
+![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_14_0.png)
 
 ## Block Production Metrics (Empty Slots and Orphaned Blocks)
 The data in the `chaind` database includes some *orphaned* (or equivalently *non-canonical*) blocks — i.e. blocks which were not finalised by the consensus process. Blocks may be orphaned when networking or other problems prevent them being visible to all nodes, accordingly they are yet another indicator of network health, as shown by the large increase in orphaned blocks around the roughtime incident.
@@ -344,11 +345,11 @@ plt.show()
 
 </details>
 
-![png](/assets/images/medalla-network-stress_files/medalla-network-stress_17_0.png)
+![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_17_0.png)
 
-![png](/assets/images/medalla-network-stress_files/medalla-network-stress_17_1.png)
+![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_17_1.png)
 
-![png](/assets/images/medalla-network-stress_files/medalla-network-stress_17_2.png)
+![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_17_2.png)
 
 ## Slashing Events
 
@@ -377,6 +378,6 @@ plt.show()
 
 </details>
 
-![png](/assets/images/medalla-network-stress_files/medalla-network-stress_19_0.png)
+![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_19_0.png)
 
 ## Conclusions

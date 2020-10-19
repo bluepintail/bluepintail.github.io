@@ -3,7 +3,7 @@
 title: "Medalla Participation Rates: A Validator Taxonomy"
 permalink: "/medalla-validator-taxonomy"
 ---
-As highlighted in the [data pre-processing notebook](/data_prep), the proportion of validators who successfully submit attestations is an important metric. Validators representing at least ⅔ of the staked ether need to attest to any given block before it can be finalised (along with all its ancestor blocks). The fraction of staked ether which *does* attest when called to do so in any given slot is called the *participation rate*. In general, a high participation rate is a signal of a healthy network. Conversely if the participation rate drops significantly below 100%, this may be a result of a range of different problems, such as:
+As highlighted in the [data pre-processing article](/medalla-data_prep), the proportion of validators who successfully submit attestations is an important metric. Validators representing at least ⅔ of the staked ether need to attest to any given block before it can be finalised (along with all its ancestor blocks). The fraction of staked ether which *does* attest when called to do so in any given slot is called the *participation rate*. In general, a high participation rate is a signal of a healthy network. Conversely if the participation rate drops significantly below 100%, this may be a result of a range of different problems, such as:
 
 - a bug in a client preventing validators running that software from attesting at the right time;
 - the network becoming partitioned such that different groups of validators cannot talk to one another;
@@ -154,7 +154,7 @@ plt.show()
 
 </details>
 
-![png](/assets/images/medalla-validator-taxonomy_files/medalla-validator-taxonomy_8_0.png)
+![png](/assets/images/medalla-2-validator-taxonomy_files/medalla-2-validator-taxonomy_8_0.png)
 
 ## Effective Balance
 Eth2 uses a concept of *effective balance* to simplify protocol calculations. While validators' actual balances will generally grow or leak very gradually according to their participation, the effective balance can only take integer values, and changes according to a hysteresis function to prevent it changing too frequently.
@@ -211,7 +211,7 @@ output:
     Slashed validator (minimum, maximum) balance: (15, 32) ETH
 ```
 
-![png](/assets/images/medalla-validator-taxonomy_files/medalla-validator-taxonomy_10_1.png)
+![png](/assets/images/medalla-2-validator-taxonomy_files/medalla-2-validator-taxonomy_10_1.png)
 
 ## Types of Non-Participating Validator
 We'll now look at whether each active validator managed to attest successfully, and have their attestations included into the canonical chain. If their attestations weren't included, we can use the information from each validator's `first_attestated_epoch` and `latest_attestated_epoch`, which we calculated in [data processing](data_prep.ipynb) to have a guess at *why* the attestation was missed. We use the following definitions:
@@ -292,7 +292,7 @@ More interesting is the stacked validator participation chart below. This shows 
 
 The slice of abandoned validators (red) grows gradually throughout the dataset, and shows a jump at the time of the roughtime incident. A large jump in abandoned validators around epoch 4500 is also of interest. This again could be a validator whale simply walking away from the network without making a clean exit, but it would be worth exploring any other possible causes.
 
-The biggest feature of this chart is clearly the enormous growth in missed attestations (orange) which occurs during/after the [roughtime incident](https://medium.com/prysmatic-labs/eth2-medalla-testnet-incident-f7fbc3cc934a) and accounts for the vast majority of epochs where the participation rate was below 66%. The participation rate even drops to zero for at least one epoch, raising an interesting question about the security of the network at this point. This incident and the network stress it caused will be the subject of the [next notebook](network_stress.ipynb).
+The biggest feature of this chart is clearly the enormous growth in missed attestations (orange) which occurs during/after the [roughtime incident](https://medium.com/prysmatic-labs/eth2-medalla-testnet-incident-f7fbc3cc934a) and accounts for the vast majority of epochs where the participation rate was below 66%. The participation rate even drops to zero for at least one epoch, raising an interesting question about the security of the network at this point. This incident and the network stress it caused will be the subject of the [next article](/medalla-network-stress).
 
 <details><summary><code>input 8</code></summary>
 
@@ -325,7 +325,7 @@ plt.show()
 
 </details>
 
-![png](/assets/images/medalla-validator-taxonomy_files/medalla-validator-taxonomy_14_0.png)
+![png](/assets/images/medalla-2-validator-taxonomy_files/medalla-2-validator-taxonomy_14_0.png)
 
 ## Excluding Dormant, Absent and Abandoned Validators
 Using our categories for unresponsive validators (dormant, absent, abandoned) we can also take a look at what the network might look like without them. This makes sense, since in a value-bearing mainnet deployment, such validator behaviour would become economically costly.
@@ -358,7 +358,7 @@ plt.show()
 
 </details>
 
-![png](/assets/images/medalla-validator-taxonomy_files/medalla-validator-taxonomy_16_0.png)
+![png](/assets/images/medalla-2-validator-taxonomy_files/medalla-2-validator-taxonomy_16_0.png)
 
 ## Participation statistics
 Another way of looking at the data is to consider the distribution of participation rates by epoch. This can give us a better sense of what proportion of epochs fall above any particular partcipation rate. Clearly the key rate of greatest significance is ⅔, but a sense of the shape of the overall distribution may tell us more than this number alone.
@@ -467,7 +467,7 @@ output:
     epochs over 2/3 participation: 99.8%         epochs over 2/3 participation: 100.0%
 ```
 
-![png](/assets/images/medalla-validator-taxonomy_files/medalla-validator-taxonomy_18_1.png)
+![png](/assets/images/medalla-2-validator-taxonomy_files/medalla-2-validator-taxonomy_18_1.png)
 
 ## Genesis
 One of the difficulties encountered with Medalla was at genesis, it took longer than may have been expected before the participation rate reached the ⅔ threshold for finality. This can be seen in the area plot below showing the first 50 epochs. Initially a large proportion of validators are *dormant* and the ⅔ threshold is not reached until the 7th epoch. Even if we exclude the subset of *absent* validators, we do not see that finality would have been reached any sooner.
@@ -527,10 +527,12 @@ display(comp.reset_index().head(10).style
 
 </details>
 
-![png](/assets/images/medalla-validator-taxonomy_files/medalla-validator-taxonomy_20_0.png)
+![png](/assets/images/medalla-2-validator-taxonomy_files/medalla-2-validator-taxonomy_20_0.png)
 
 <style  type="text/css" >
-</style><table id="T_15b22038_0f93_11eb_b89d_23b5274849f9" ><caption>Participation rates (%) first 10 epochs</caption><thead>    <tr>        <th class="col_heading level0 col0" >epoch</th>        <th class="col_heading level0 col1" >All data</th>        <th class="col_heading level0 col2" >Excluding absent</th>    </tr></thead><tbody>
+</style>
+
+<table id="T_15b22038_0f93_11eb_b89d_23b5274849f9" ><caption>Participation rates (%) first 10 epochs</caption><thead>    <tr>        <th class="col_heading level0 col0" >epoch</th>        <th class="col_heading level0 col1" >All data</th>        <th class="col_heading level0 col2" >Excluding absent</th>    </tr></thead><tbody>
                 <tr>
                                 <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row0_col0" class="data row0 col0" >0</td>
                         <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row0_col1" class="data row0 col1" >59.8</td>
@@ -581,7 +583,9 @@ display(comp.reset_index().head(10).style
                         <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row9_col1" class="data row9 col1" >70.4</td>
                         <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row9_col2" class="data row9 col2" >73.5</td>
             </tr>
-    </tbody></table>
+    </tbody>
+    
+</table>
 
 ## Activation delays
 An interesting question arises from the delay in reaching quorum after genesis — do new validators always struggle to join the network, or is this an issue which occurred at genesis and was less important once the network was established? We can look at this by counting how *late* each validator is with its first attestation. Genesis validators are expected to attest in epoch 0, while later validators should first attest during their `attestation_epoch`.
@@ -681,7 +685,7 @@ output:
 
 ```
 
-![png](/assets/images/medalla-validator-taxonomy_files/medalla-validator-taxonomy_22_1.png)
+![png](/assets/images/medalla-2-validator-taxonomy_files/medalla-2-validator-taxonomy_22_1.png)
 
 # Conclusions
 Much of the analysis conducted so far rests on an important assumption — that validators who were dormant, absent or abandoned were so because the people responsible for them weren't properly incentivised. As a testnet with no value at stake, Medalla relies to a significant extent on participants acting non-maliciously, and on being reliable for the good of the network. This was always going to be a significant weakness of Medalla.

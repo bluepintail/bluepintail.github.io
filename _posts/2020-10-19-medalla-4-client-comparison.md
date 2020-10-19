@@ -3,7 +3,7 @@
 title: "Comparing the Eth2 Clients on the Medalla Network"
 permalink: "/medalla-client-comparison/"
 ---
-Using the client data aggregated in the [data pre-processing notebook](/medalla-data-prep), we'll now take a look at how the different clients active on the Medalla testnet compared.
+Using the client data aggregated in [data pre-processing](/medalla-data-prep), we'll now take a look at how the different clients active on the Medalla testnet compared.
 
 Of course, as already mentioned, this analysis relies on the truthfulness of validators' block graffiti. It is also a snapshot in time. All the eth2 clients have continued to be developed and refined throughout the period under review. Problems apparent in the earlier phases may already have been resolved.
 
@@ -164,7 +164,7 @@ output:
     16288 no blocks produced (20.3%)
 ```
 
-![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_6_1.png)
+![png](/assets/images/medalla-4-client-comparison_files/medalla-4-client-comparison_6_1.png)
 
 ```
 output:
@@ -177,7 +177,7 @@ output:
      2177 ambiguous (9.7%)
 ```
 
-![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_6_3.png)
+![png](/assets/images/medalla-4-client-comparison_files/medalla-4-client-comparison_6_3.png)
 
 <details><summary><code>input 5</code></summary>
 
@@ -307,7 +307,7 @@ output:
     max      100.000000    100.000000    100.000000    100.000000
 ```
 
-![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_9_1.png)
+![png](/assets/images/medalla-4-client-comparison_files/medalla-4-client-comparison_9_1.png)
 
 ```
 output:
@@ -322,7 +322,7 @@ output:
     max      100.000000    100.000000    100.000000    100.000000
 ```
 
-![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_9_3.png)
+![png](/assets/images/medalla-4-client-comparison_files/medalla-4-client-comparison_9_3.png)
 
 ## Mean inclusion distance
 Let's repeat the plot of mean inclusion distance we previously saw for the network as a whole, this time, broken down by client. Again the data is smoothed with a 16-epoch moving average to make it easier to see what's going on.
@@ -384,7 +384,7 @@ output:
 
 ```
 
-![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_11_1.png)
+![png](/assets/images/medalla-4-client-comparison_files/medalla-4-client-comparison_11_1.png)
 
 ```
 output:
@@ -402,7 +402,7 @@ output:
 
 ```
 
-![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_11_3.png)
+![png](/assets/images/medalla-4-client-comparison_files/medalla-4-client-comparison_11_3.png)
 
 ## Attestation effectiveness
 
@@ -463,7 +463,7 @@ output:
 
 ```
 
-![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_13_1.png)
+![png](/assets/images/medalla-4-client-comparison_files/medalla-4-client-comparison_13_1.png)
 
 ```
 output:
@@ -481,4 +481,4 @@ output:
 
 ```
 
-![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_13_3.png)
+![png](/assets/images/medalla-4-client-comparison_files/medalla-4-client-comparison_13_3.png)

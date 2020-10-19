@@ -1,18 +1,22 @@
 ---
 # front matter for Jekyll
 title: "Data Pre-processing for the Medalla Data Challenge"
-permalink: "/medalla-data-prep/"
-toc: true
+permalink: "/posts/medalla-data-prep/"
 ---
-This article documents the pre-processing steps carried out for an entry into the [Medalla data challenge](https://ethereum.org/en/eth2/get-involved/medalla-data-challenge/). Visualisations and analysis of this data can be found in the following notebooks:
+This article documents the pre-processing steps carried out for an entry into the [Medalla data challenge](https://ethereum.org/en/eth2/get-involved/medalla-data-challenge/). Like all the articles in this series, it is a conversion of a Jupyter notebook — the originals of which are saved in [this GitHub respository](https://github.com/pintail-xyz/medalla_analysis).
 
-- [Medalla Participation Rates: A Validator Taxonomy](/medalla-validator-taxonomy)
-- [The Medalla Network Under Stress](/medalla-network-stress)
-- [Eth2 Client Comparisons from Medalla Data](/medalla-client-comparison)
+ Visualisations and analysis of this data can be found on the following pages:
 
-The data used is taken from a [database dump](http://mdc.mcdee.net/chain-487600.dmp), kindly shared by Jim McDonald ([@jgm](https://twitter.com/jgm)) of [Attestant](https://www.attestant.io/), which includes beacon chain data for the first approxiamtely 15,000 epochs (up to around 11 October 2020). The schemas for the tables in this database are included in the separate [schemas](schemas) file. Jim has made his `chaind` process for extracting beacon chain data from an ETH2 client [available for use](https://github.com/wealdtech/chaind), so the results in this article can be replicated and updated by first generating a database from `chaind` and your eth2 node of choice.
+- [Medalla Participation Rates: A Validator Taxonomy](/posts/medalla-validator-taxonomy)
+- [The Medalla Network Under Stress](/posts/medalla-network-stress)
+- [Eth2 Client Comparisons from Medalla Data](/posts/medalla-client-comparison)
+
+The data used is taken from a [database dump](http://mdc.mcdee.net/chain-487600.dmp), kindly shared by Jim McDonald ([@jgm](https://twitter.com/jgm)) of [Attestant](https://www.attestant.io/), which includes beacon chain data for the first approxiamtely 15,000 epochs (up to around 11 October 2020). The schemas for the tables in this database are included in the separate [schemas](schemas) file. Jim has made his `chaind` process for extracting beacon chain data from an eth2 client [available for use](https://github.com/wealdtech/chaind), so the results in this article can be replicated and updated by first generating a database from `chaind` and your eth2 node of choice.
 
 Special thanks also to Ben Edgington ([@benjaminion_xyz](https://twitter.com/benjaminion_xyz)) whose [Eth2 Annontated Spec](https://benjaminion.xyz/eth2-annotated-spec/phase0/beacon-chain/) has been a vital resource in understanding how the beacon chain works.
+
+## Setup
+First up, we import the Python libraries to be used in this analysis, connect to the `chaind` database and pull out some basic information about the data we have saved there:
 
 <details><summary><code>input 1</code></summary>
 
@@ -22,6 +26,7 @@ import time
 
 import psycopg2
 from bitlist import bitlist
+from IPython.display import clear_output
 ```
 
 </details>
@@ -67,7 +72,7 @@ output:
 ```
 
 ## Database Modifications
-First we make a few changes to the postgresql database provided by `chaind`. The database includes all blocks observed by Jim's Teku node, including a number of *orphaned* blocks which did not become *canonical*, that is, part of the finalised chain. Working out which blocks are canonical and which are orphaned will be valuable later, so we create extra columns in the `t_blocks` and `t_attestations` tables to mark those blocks and the attestations which were included in them. We also create a new index on `t_attestations` to allow us to select attestations according to the hash of the block in which they were included.
+Next we make a few changes to the postgresql database provided by `chaind`. The database includes all blocks observed by Jim's Teku node, including a number of *orphaned* blocks which did not become *canonical*, that is, part of the finalised chain. Working out which blocks are canonical and which are orphaned will be valuable later, so we create extra columns in the `t_blocks` and `t_attestations` tables to mark those blocks and the attestations which were included in them. We also create a new index on `t_attestations` to allow us to select attestations according to the hash of the block in which they were included.
 
 We then add a new table, `t_validator_performance`, which we will populate later with information about how each validator performed for each of its assigned attestation duties.
 
@@ -112,20 +117,21 @@ cursor.execute("ALTER TABLE t_validators "
 connection.commit()
 
 elapsed = time.strftime("%H:%M:%S",time.gmtime(time.time() - start_time))
-print(f"completed database modifications in {elapsed}                             ")
+clear_output()
+print(f"completed database modifications in {elapsed}")
 ```
 
 </details>
 
 ```
 output:
-    completed database modifications in 00:02:45                             
+    completed database modifications in 00:02:18
 ```
 
 ## Identifying Canonical Blocks
-One of the properties of eth2's [Casper FFG](https://arxiv.org/pdf/1710.09437.pdf) finality process is that blocks can be *finalised*, that is, they become unrevertable. Over short timescales it is possible for the eth2 beacon chain to fork. However, with sufficient validator participation (representing at least ⅔ of the total amount of staked ether), eventually the validator set reaches consensus on one *canonical* chain.
+One of the properties of eth2's [Casper FFG](https://arxiv.org/pdf/1710.09437.pdf) finality process is that blocks can be *finalised*, that is, they become unrevertable. Over short timescales it is possible for the eth2 beacon chain to fork, just as with existing Proof-of-Work blockchains (including the existing eth1 chain). However, with sufficient validator participation (representing at least ⅔ of the total amount of staked ether), eventually the validator set reaches consensus on one *canonical* chain.
 
-As in other blockchains, such as the eth1 chain, each block contains a hash of a *parent* — that is, a block at an earlier time identified as the previous block in the chain. Identiyfing all blocks in the canonical chain is therefore simply a matter of taking a recently-finalised block and tracking back through the chain via each block's parents. Helpfully, the most recent block in the `chaind` database used in this analysis *was* finalised, according to [beaconcha.in](https://beaconcha.in), so we will start tracking back from there. Any block not lying on this chain will be considered to be an orphan.
+Also as in other blockchains, each block contains a hash of a *parent* — that is, a block at an earlier time identified as the previous block in the chain. Identiyfing all blocks in the canonical chain is therefore simply a matter of taking a recently-finalised block and tracking back through the chain via each block's parents. Helpfully, the most recent block in the `chaind` database used in this analysis *was* finalised, according to [beaconcha.in](https://beaconcha.in), so we will start tracking back from there. Any block not lying on this chain will be considered to be an orphan.
 
 <details><summary><code>input 5</code></summary>
 
@@ -165,12 +171,13 @@ while True:
 
 connection.commit()
 
-print(f"finished (reached back to slot {slot}) in {elapsed}." + ' ' * 85)
+clear_output()
+print(f"finished (reached back to slot {slot:,}) in {elapsed}.")
 
 cursor.execute("SELECT COUNT(*), SUM(f_canonical::int) FROM t_blocks")
 result = cursor.fetchone()
 orphan_ratio = 1 - result[1] / result[0]
-print(f"database contains {result[0]} blocks of which {result[1]} are canonical "
+print(f"database contains {result[0]:,} blocks of which {result[1]:,} are canonical "
       F"({100*orphan_ratio:.1f}% orphan blocks)")
 ```
 
@@ -178,9 +185,34 @@ print(f"database contains {result[0]} blocks of which {result[1]} are canonical 
 
 ```
 output:
-    finished (reached back to slot 0) in 00:34:36.                                                                                     
-    database contains 358048 blocks of which 349856 are canonical (2.3% orphan blocks)
+    finished (reached back to slot 0) in 00:32:11.
+    database contains 358,048 blocks of which 349,856 are canonical (2.3% orphan blocks)
 ```
+
+<details><summary><code>input None</code></summary>
+
+```python
+# (this code is an optimisation for the calculations below but has not been used)
+
+# identify chain head for each slot
+head = []
+for slot in range(n_slots):
+    cursor.execute(f"SELECT f_root FROM t_blocks WHERE f_slot = {slot} AND f_canonical")
+    result = cursor.fetchone()
+    if result:
+        head_slot, head_root = slot, result[0].hex()
+    head.append([head_slot, head_root])
+
+# find the gap to the next canonical block at each slot
+gap = 1
+for i, h in enumerate(head):
+    while i+gap < len(head) and head[i+gap][0] != i+gap:
+        gap += 1
+    h.append(gap)
+    gap = 1
+```
+
+</details>
 
 <details><summary><code>input 6</code></summary>
 
@@ -189,7 +221,7 @@ output:
 cursor.execute("SELECT COUNT(*), SUM(f_canonical::int) FROM t_attestations")
 result = cursor.fetchone()
 
-print(f"database contains {result[0]} attestations of which {result[1]} are canonical "
+print(f"database contains {result[0]:,} attestations of which {result[1]:,} are canonical "
       f"({100 * (1 - result[1] / result[0]):.1f}% from orphan blocks)")
 ```
 
@@ -197,7 +229,7 @@ print(f"database contains {result[0]} attestations of which {result[1]} are cano
 
 ```
 output:
-    database contains 22723853 attestations of which 22246751 are canonical (2.1% from orphan blocks)
+    database contains 22,723,853 attestations of which 22,246,751 are canonical (2.1% from orphan blocks)
 ```
 
 ## Blockchain Time
@@ -256,15 +288,28 @@ for slot in range(latest_slot):
     attestations = cursor.fetchall()
     
     for attestation in attestations:
-        committee_index, inclusion_slot = attestation[0], attestation[1]
-        aggregation_bits, attestation_root = attestation[2], attestation[3].hex()
-        head_root = attestation[4].hex()
-        cursor.execute(f"SELECT f_canonical FROM t_blocks WHERE f_root = '\\x{head_root}'")
+        committee_index, inclusion_slot, aggregation_bits = attestation[:3]
+        attestation_root, head_root = attestation[3].hex(), attestation[4].hex()
+        
+        # to determine if this attestation is "correct", first check it attests to a canonical block
+        cursor.execute(f"SELECT f_canonical, f_slot FROM t_blocks WHERE f_root = '\\x{head_root}'")
         result = cursor.fetchone()
         if result:
-            correct = 1 if result[0] else -1
+            (canonical, head_slot) = result
+            if not canonical:
+                correct = -1
+            elif head_slot == slot:
+                correct = 1
+            else:
+                # if head for this attestation is not current slot, check the intervening slots were empty 
+                cursor.execute(f"SELECT SUM(f_canonical::int) FROM t_blocks "
+                               f"WHERE f_slot > {head_slot} AND f_slot <= {slot}")
+                count = cursor.fetchone()[0]
+                
+                correct = 1 if count == 0 else -1
         else:
             correct = -1
+        
         inclusion_distance = inclusion_slot - slot - 1
         committee_participation = decode_attestation(aggregation_bits, committee_lookup[committee_index])
         
@@ -298,7 +343,8 @@ for slot in range(latest_slot):
     print(f"processing attestations: epoch {epoch} of {n_epochs} ({percentage:.2f}%) / "
           f"{elapsed} elapsed / {left} left       ", end='\r')
 
-print(f"attestations processed in {elapsed}" + ' ' * 60)
+clear_output()
+print(f"attestations processed in {elapsed}")
 
 print("indexing validator performance table...", end='')
 cursor.execute("CREATE INDEX i_epoch ON t_validator_performance (f_slot)")
@@ -319,13 +365,13 @@ connection.commit()
 
 ```
 output:
-    attestations processed in 03:47:28                                                               
+    attestations processed in 04:30:22
     indexing validator performance table...done
     saving validator first/latest attestation epochs...done
 ```
 
 ## Identifying Validator Clients and Block Producers
-Next, we will attempt to compare the performance of the different eth2 clients participating in the Medalla testnet. These clients are:
+Finally, we will attempt to compare the performance of the different eth2 clients participating in the Medalla testnet. These clients are:
 - [Prysm](https://github.com/prysmaticlabs/prysm) from [Prysmatic Labs](https://prysmaticlabs.com/)
 - [Lighthouse](https://github.com/sigp/lighthouse) from [Sigma Prime](https://sigmaprime.io/)
 - [Teku](https://github.com/PegaSysEng/teku) from [PegaSys](https://pegasys.tech/)
@@ -394,7 +440,8 @@ for i, info in enumerate(proposer_info):
         print(f"working through blocks / {100*done:.2f}% complete / "
               f"{elapsed} elapsed / {left} left", end='\r')
 
-print(f"block proposers processed in {elapsed}" + ' ' * 60)
+clear_output()
+print(f"block proposers processed in {elapsed}")
 print("saving validator info...", end='')
 for i, client in enumerate(clients):
     cursor.execute("UPDATE t_validators SET f_client = %s, f_proposed_count = %s"
@@ -408,6 +455,6 @@ print("done")
 
 ```
 output:
-    block proposers processed in 00:00:01                                                            
+    block proposers processed in 00:00:01
     saving validator info...done
 ```

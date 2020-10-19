@@ -1,9 +1,9 @@
 ---
 # front matter for Jekyll
 title: "Medalla Participation Rates: A Validator Taxonomy"
-permalink: "/medalla-validator-taxonomy"
+permalink: "/posts/medalla-validator-taxonomy"
 ---
-As highlighted in the [data pre-processing article](/medalla-data_prep), the proportion of validators who successfully submit attestations is an important metric. Validators representing at least ⅔ of the staked ether need to attest to any given block before it can be finalised (along with all its ancestor blocks). The fraction of staked ether which *does* attest when called to do so in any given slot is called the *participation rate*. In general, a high participation rate is a signal of a healthy network. Conversely if the participation rate drops significantly below 100%, this may be a result of a range of different problems, such as:
+As highlighted in the [data pre-processing article](/posts/medalla-data-prep), the proportion of validators who successfully submit attestations is an important metric. Validators representing at least ⅔ of the staked ether need to attest to any given block before it can be finalised (along with all its ancestor blocks). The fraction of staked ether which *does* attest when called to do so in any given slot is called the *participation rate*. In general, a high participation rate is a signal of a healthy network. Conversely if the participation rate drops significantly below 100%, this may be a result of a range of different problems, such as:
 
 - a bug in a client preventing validators running that software from attesting at the right time;
 - the network becoming partitioned such that different groups of validators cannot talk to one another;
@@ -18,7 +18,7 @@ However, in the Medalla network there is no real value is at stake. This leads t
 
 - users are not incentivised to participate, and may not bother to run their validators consistently, or at all.
 
-Moreover, users who run into difficulty in using client software or simply lose interest in the project are likely simply to "walk away" from the network rather than using the *voluntary exit* procedure defined in the spec. But before getting into that, let's first take a look at how the make-up of the validator set varies over the course of the dataset.
+Moreover, users who run into difficulty in using client software or simply lose interest in the project are likely simply to "walk away" from the network rather than using the *voluntary exit* procedure defined in the spec. But before getting into that, let's first take a look at how the make-up of the validator set varies over the course of the dataset. As before, we start by getting pulling out some of the data we need from `chaind`:
 
 <details><summary><code>input 1</code></summary>
 
@@ -30,7 +30,7 @@ import psycopg2
 import matplotlib.pyplot as plt
 from matplotlib.ticker import PercentFormatter
 import pandas as pd
-from IPython.display import display
+from IPython.display import display, clear_output
 ```
 
 </details>
@@ -129,7 +129,7 @@ status_data = pd.DataFrame({'waiting': waiting_count, 'active': active_count,
 
 ```
 output:
-    completed in 00:05:47                                                  
+    completed in 00:06:22                                                  
 ```
 
 The chart below shows the evolution of each of these categories of validator. We can see at genesis that almost the entire validator set is composed of *active* validators — those who submitted their deposits prior to genesis. During most of the period the active validator set grows linearly as the queue of *waiting* validators is processed.
@@ -161,7 +161,7 @@ Eth2 uses a concept of *effective balance* to simplify protocol calculations. Wh
 
 We can confirm that the "exited" validators from the chart above is composed exclusively of validators who have triggered a voluntary exit, rather than inactivity leak causing their balances to fall below 16 ETH, because the lowest effective balance of any validator in this group is 30 ETH, as calculated below.
 
-Looking more widely at the effective balances of the validators, we find that among validators who have activated but not been slashed, the minimum effective balance is also 30 ETH, while the maximum effective balance is the protocol-imposed limit of 32 ETH. Meanwhile a small number of validators have been quite severely slashed.
+Looking more widely at the effective balances of the validators, we find that among validators who have activated but not been slashed, the minimum effective balance is also 30 ETH, while the maximum effective balance is the protocol-imposed limit of 32 ETH. Meanwhile a small number of validators have been quite severely slashed. This can be seen in the distributions of effective balances for both slashed and non-slashed validators plotted below.
 
 Given the very limited variation in effective balance amongst active validators in this dataset, we will weight validators equally in the remaining analysis. This will simplify the analysis at the cost of slight errors in calculations of participation rates.
 
@@ -188,9 +188,9 @@ cursor.execute(f"SELECT f_effective_balance FROM t_validator_balances WHERE f_va
                f"AND f_epoch = {n_epochs-1}")
 eff_balances_slashed = pd.Series([b[0]*10**-9 for b in cursor.fetchall()], name='slashed')
 
-print(f"Non-slashed validator (minimum, maximum) balance: "
+print(f"Non-slashed validator balance (min, max): "
       f"({int(eff_balances.min())}, {int(eff_balances.max())}) ETH")
-print(f"Slashed validator (minimum, maximum) balance: "
+print(f"Slashed validator balance (min, max): "
       f"({int(eff_balances_slashed.min())}, {int(eff_balances_slashed.max())}) ETH")
 
 fig=plt.figure(figsize=(12,8))
@@ -207,14 +207,14 @@ plt.xlim(0,34);
 ```
 output:
     Minimum exited validator effective balance: 30 ETH
-    Non-slashed validator (minimum, maximum) balance: (30, 32) ETH
-    Slashed validator (minimum, maximum) balance: (15, 32) ETH
+    Non-slashed validator balance (min, max): (30, 32) ETH
+    Slashed validator balance (min, max): (15, 32) ETH
 ```
 
 ![png](/assets/images/medalla-2-validator-taxonomy_files/medalla-2-validator-taxonomy_10_1.png)
 
 ## Types of Non-Participating Validator
-We'll now look at whether each active validator managed to attest successfully, and have their attestations included into the canonical chain. If their attestations weren't included, we can use the information from each validator's `first_attestated_epoch` and `latest_attestated_epoch`, which we calculated in [data processing](data_prep.ipynb) to have a guess at *why* the attestation was missed. We use the following definitions:
+We'll now look at whether each active validator managed to attest successfully, and have their attestations included into the canonical chain. If their attestations weren't included, we can use the information from each validator's `first_attestated_epoch` and `latest_attestated_epoch`, which we calculated in [data processing](/posts/medalla-data-prep) to have a guess at *why* the attestation was missed. We use the following definitions:
 1. `success_count`: the number of attestations in the epoch that where successfully included in the canonical chain
 2. `absent_count` : the number of scheduled attestations from validators who did not have any successful attestations in the whole dataset — we think of these validators as *absent* because they never showed up at all
 3. `dormant_count`: the number of scheduled attestations from validators who have not *yet* made a successful attestations (but they did later in the dataset) — we think of these as *dormant* validators who were not ready to attest when their `activation_epoch` hit (perhaps they overslept?)
@@ -223,7 +223,7 @@ We'll now look at whether each active validator managed to attest successfully, 
 
 As stated above these categories are all just guesses, based on each validator's behaviour. These categorisations are partly based on the assumption that with no real value at stake on the Medalla testnet, some people will make deposits for validators that they never bother to fire up (*absent*), some may not prepare in advance of activation and therefore be late (*dormant*), and still others may not bother to pick up their validator if it falls over, or they have no further interest in participating (*abandoned*).
 
-This is not meant pejoratively! My own validator would show up as *dormant* for a few epochs, since I hadn't factored in the time needed to compile and run the Lighthouse beacon chain client before Medalla's genesis time (**blushes**). Rather it is an illustration of the difficulty inherent in trying to test an economically driven consensus/finality mechanism without economic incentives.
+This is not meant pejoratively! My own validator would show up as *dormant* for a few epochs, since I hadn't factored in the time needed to compile and run the Lighthouse beacon chain client before Medalla's genesis time (**blushes**). Rather it is an illustration of the difficulty inherent in trying to test an economically driven consensus/finality mechanism without economic incentives. The code below totals up each of these categories of validator on a per-epoch basis:
 
 <details><summary><code>input 7</code></summary>
 
@@ -274,25 +274,28 @@ for slot in range(n_epochs * 32):
         percentage = 100*(slot+1)/(latest_slot+1)
         print(f"epoch {epoch} of {latest_slot//32} ({percentage:.2f}%) / "
               f"{elapsed} elapsed / {left} left", end='\r')
-    
-print(f"completed in {elapsed}." + ' ' * 80)
+
+clear_output()
+print(f"completed in {elapsed}.")
 ```
 
 </details>
 
 ```
 output:
-    completed in 00:14:08.                                                                                
+    completed in 00:12:51.
 ```
 
 ## Participation trends
-Using the categories defined above, we can now take a look at how the network performed, in terms of the percentage of validators who successfully attested each epoch (the *participation rate*). Remembering that for finality on the beacon chain, at least ⅔ of validators must successfully attest each epoch, we're particularly interested in how much time the network stays above this level. From the participation stats below, we can see that over 92% of epochs reached this threshold — from the histogram we can see that most epochs were clustered just below the 80% mark.
+We can now take a look at how the network performed, in terms of the percentage of validators who successfully attested each epoch (the *participation rate*). We can also look that the breakdown of validators who failed to attest during a given epoch according to whether they have ever previously successfully attested, or will successfully attest at some future point (using the cateogires *absent*, *dormant* and *abandoned* defined above). This information is shown graphicaly in the stacked validator participation chart below.
 
-More interesting is the stacked validator participation chart below. This shows a fairly consistent slice of the validator set was composed of absent validators who deposited but never participated (in purple). The dormant slice (green) varied more, and interestingly we can see little ramps where a series of new validators joined and were dormant for some time. This is likely to be the result of testnet whales joining with hundreds of validators without being ready. The number of dormant validators grows significantly during/after the roughtime incident, as new validators were unable to sync their clients to the beacon chain.
+The biggest feature of this chart is clearly the enormous growth in missed attestations (orange) which occurs during/after the [roughtime incident](https://medium.com/prysmatic-labs/eth2-medalla-testnet-incident-f7fbc3cc934a). The participation rate even drops to zero for at least one epoch, raising an interesting question about the security of the network at this point. This incident and the network stress it caused will be the subject of the [next article](/posts/medalla-network-stress).
 
-The slice of abandoned validators (red) grows gradually throughout the dataset, and shows a jump at the time of the roughtime incident. A large jump in abandoned validators around epoch 4500 is also of interest. This again could be a validator whale simply walking away from the network without making a clean exit, but it would be worth exploring any other possible causes.
+The chart shows a fairly consistent slice of the validator set was composed of absent validators who deposited but never participated (in purple). The dormant slice (green) varied more, and interestingly we can see little ramps where a series of new validators were activated but were dormant for some time. This is likely to be the result of testnet whales joining with hundreds of validators without being ready. The number of dormant validators grows significantly during/after the roughtime incident, as new validators were unable to sync their clients to the beacon chain.
 
-The biggest feature of this chart is clearly the enormous growth in missed attestations (orange) which occurs during/after the [roughtime incident](https://medium.com/prysmatic-labs/eth2-medalla-testnet-incident-f7fbc3cc934a) and accounts for the vast majority of epochs where the participation rate was below 66%. The participation rate even drops to zero for at least one epoch, raising an interesting question about the security of the network at this point. This incident and the network stress it caused will be the subject of the [next article](/medalla-network-stress).
+The slice of abandoned validators (red) grows gradually throughout the dataset, and widens significantly during and after roughtime incident. It also grows much faster towards the end of the dataset. This may be due to large numbers of users switching off their validators in preparation for mainnet, or because they feel they have already devoted enough time and energy to the testnet for their own needs. Information about how to initiate a voluntary exit has been less widely shared than information on how to join the network (such as [Somer Esat](https://twitter.com/SomerEsat)'s excellent guides: [Prysm](https://medium.com/@SomerEsat/guide-to-staking-on-ethereum-2-0-ubuntu-medalla-prysm-4d2a86cc637b), [Lighthouse](https://medium.com/@SomerEsat/guide-to-staking-on-ethereum-2-0-ubuntu-medalla-lighthouse-c6f3c34597a8), [Teku](https://medium.com/@SomerEsat/guide-to-staking-on-ethereum-2-0-ubuntu-medalla-teku-170e2c52bd23), [Nimbus](https://medium.com/@SomerEsat/guide-to-staking-on-ethereum-2-0-ubuntu-medalla-nimbus-5f4b2b0f2d7c)), so some may not even realise that a formal exit procedure is needed.
+
+Indeed, [evidence from forums](https://www.reddit.com/r/ethstaker/comments/jdkgo7/are_we_still_trying_to_run_medalla/?utm_source=share&utm_medium=web2x&context=3) suggests that some users are unaware of how or why to use the protocol voluntary exit procedure. This effect is therefore probably part of the cause for the Medalla participation rate dropping [to very low levels](https://hackmd.io/@benjaminion/wnie2_201018#Testnets) in recent days.
 
 <details><summary><code>input 8</code></summary>
 
@@ -361,13 +364,13 @@ plt.show()
 ![png](/assets/images/medalla-2-validator-taxonomy_files/medalla-2-validator-taxonomy_16_0.png)
 
 ## Participation statistics
-Another way of looking at the data is to consider the distribution of participation rates by epoch. This can give us a better sense of what proportion of epochs fall above any particular partcipation rate. Clearly the key rate of greatest significance is ⅔, but a sense of the shape of the overall distribution may tell us more than this number alone.
+Another way of looking at the data is to consider the statistical distribution of participation rates by epoch. This can give us a better sense of what proportion of epochs fall above any particular partcipation rate. Clearly the key rate of greatest significance is ⅔, but a sense of the shape of the overall distribution may tell us more than this number alone.
 
 In the statistics and plots below we find that over 90% of epochs were above ⅔ participation. This proportion increases slightly if we ignore unresponsive (i.e. absent, dormant or abandoned) validators. We know that the previously mentioned roughtime incident was responsible for a prolonged periods of non-finalisation, and this will be explored in the next notebook. To take a look at how the network has performed since the resolution of this instance, the analysis is repeated in the second row, starting from epoch 5000.
 
 From epoch 5000 onwards, we find that 99.8% of epochs reached the ⅔ quorum. If we exclude unresponsive validators, this reaches 100%.
 
-<details><summary><code>input 10</code></summary>
+<details><summary><code>input 13</code></summary>
 
 ```python
 # participation rate statistics - include/exclude roughtime, non-live validators
@@ -414,30 +417,34 @@ col2.append(f"epochs over 2/3 participation: {quorate:.1f}%")
 for row, text in enumerate(col1):
     print(text.ljust(45,' ') + col2[row])
 
-perc_participation_data['successful'].plot.hist(bins=range(0,101), ax=axs[0,0])
+perc_participation_data['successful'].plot.hist(density=True, bins=range(0,101), ax=axs[0,0])
 axs[0, 0].set_title('all data')
-axs[0, 0].set_ylabel('validator count')
+axs[0, 0].set_ylabel('% of validators')
 axs[0, 0].set_xlim(0,100)
+axs[0, 0].set_ylim(0,0.2)
 axs[0, 0].yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0));
 
-perc_reduced_participation_data['successful'].plot.hist(bins=range(0,101), ax=axs[0,1])
+perc_reduced_participation_data['successful'].plot.hist(density=True, bins=range(0,101), ax=axs[0,1])
 axs[0, 1].set_title('excl. unresponsive validators')
 axs[0, 1].set_ylabel('')
 axs[0, 1].set_xlim(0,100)
+axs[0, 1].set_ylim(0,0.2)
 axs[0, 1].yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0));
 
-after_roughtime.plot.hist(bins=range(0,101), ax=axs[1,0])
+after_roughtime.plot.hist(density=True, bins=range(0,101), ax=axs[1,0])
 axs[1, 0].set_title('epoch 5000 onwards')
 axs[1, 0].set_xlabel('participation rate (%)')
-axs[1, 0].set_ylabel('validator count')
+axs[1, 0].set_ylabel('% of validators')
 axs[1, 0].set_xlim(0,100)
+axs[1, 0].set_ylim(0,0.2)
 axs[1, 0].yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0));
 
-after_roughtime_reduced.plot.hist(bins=range(0,101), ax=axs[1,1])
+after_roughtime_reduced.plot.hist(density=True, bins=range(0,101), ax=axs[1,1])
 axs[1, 1].set_title('epoch 5000 onwards, excl. unresponsive validators')
 axs[1, 1].set_xlabel('participation rate (%)')
 axs[1, 1].set_ylabel('')
-axs[1, 1].set_xlim(0,100);
+axs[1, 1].set_xlim(0,100)
+axs[1, 1].set_ylim(0,0.2)
 axs[1, 1].yaxis.set_major_formatter(PercentFormatter(xmax=1, decimals=0));
 ```
 
@@ -476,10 +483,10 @@ This was a pattern that was repeated for the "genesis rehearsal" *Spadina* testn
 
 On the positive side, the actual penalties for non-participating validators (known as inactivity leak) are not severe, as long as the period of non-finality is reasonably short. A repeat of Medalla's ~1 hour wait for finality would not be a serious problem.
 
-<details><summary><code>input 11</code></summary>
+<details><summary><code>input 14</code></summary>
 
 ```python
-# genesis - the first 100 epochs - but excluding absent validators
+# draw stacked plot for the first 100 epochs - but excluding absent validators
 
 # what is the distribution of gap between validator activation and the first successful attestation?
 # - for the genesis set, non-genesis validators, all validators?
@@ -532,59 +539,61 @@ display(comp.reset_index().head(10).style
 <style  type="text/css" >
 </style>
 
-<table id="T_15b22038_0f93_11eb_b89d_23b5274849f9" ><caption>Participation rates (%) first 10 epochs</caption><thead>    <tr>        <th class="col_heading level0 col0" >epoch</th>        <th class="col_heading level0 col1" >All data</th>        <th class="col_heading level0 col2" >Excluding absent</th>    </tr></thead><tbody>
+<table id="T_926cab80_121c_11eb_b89d_23b5274849f9" >
+
+<caption>Participation rates (%) first 10 epochs</caption><thead>    <tr>        <th class="col_heading level0 col0" >epoch</th>        <th class="col_heading level0 col1" >All data</th>        <th class="col_heading level0 col2" >Excluding absent</th>    </tr></thead><tbody>
                 <tr>
-                                <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row0_col0" class="data row0 col0" >0</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row0_col1" class="data row0 col1" >59.8</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row0_col2" class="data row0 col2" >62.4</td>
+                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row0_col0" class="data row0 col0" >0</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row0_col1" class="data row0 col1" >59.8</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row0_col2" class="data row0 col2" >62.4</td>
             </tr>
             <tr>
-                                <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row1_col0" class="data row1 col0" >1</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row1_col1" class="data row1 col1" >57.7</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row1_col2" class="data row1 col2" >60.3</td>
+                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row1_col0" class="data row1 col0" >1</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row1_col1" class="data row1 col1" >57.7</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row1_col2" class="data row1 col2" >60.3</td>
             </tr>
             <tr>
-                                <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row2_col0" class="data row2 col0" >2</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row2_col1" class="data row2 col1" >58.2</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row2_col2" class="data row2 col2" >60.7</td>
+                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row2_col0" class="data row2 col0" >2</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row2_col1" class="data row2 col1" >58.2</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row2_col2" class="data row2 col2" >60.7</td>
             </tr>
             <tr>
-                                <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row3_col0" class="data row3 col0" >3</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row3_col1" class="data row3 col1" >58.5</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row3_col2" class="data row3 col2" >61.1</td>
+                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row3_col0" class="data row3 col0" >3</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row3_col1" class="data row3 col1" >58.5</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row3_col2" class="data row3 col2" >61.1</td>
             </tr>
             <tr>
-                                <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row4_col0" class="data row4 col0" >4</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row4_col1" class="data row4 col1" >60.2</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row4_col2" class="data row4 col2" >62.9</td>
+                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row4_col0" class="data row4 col0" >4</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row4_col1" class="data row4 col1" >60.2</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row4_col2" class="data row4 col2" >62.9</td>
             </tr>
             <tr>
-                                <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row5_col0" class="data row5 col0" >5</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row5_col1" class="data row5 col1" >63.0</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row5_col2" class="data row5 col2" >65.8</td>
+                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row5_col0" class="data row5 col0" >5</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row5_col1" class="data row5 col1" >63.0</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row5_col2" class="data row5 col2" >65.8</td>
             </tr>
             <tr>
-                                <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row6_col0" class="data row6 col0" >6</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row6_col1" class="data row6 col1" >69.6</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row6_col2" class="data row6 col2" >72.6</td>
+                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row6_col0" class="data row6 col0" >6</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row6_col1" class="data row6 col1" >69.6</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row6_col2" class="data row6 col2" >72.6</td>
             </tr>
             <tr>
-                                <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row7_col0" class="data row7 col0" >7</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row7_col1" class="data row7 col1" >68.9</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row7_col2" class="data row7 col2" >71.9</td>
+                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row7_col0" class="data row7 col0" >7</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row7_col1" class="data row7 col1" >68.9</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row7_col2" class="data row7 col2" >71.9</td>
             </tr>
             <tr>
-                                <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row8_col0" class="data row8 col0" >8</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row8_col1" class="data row8 col1" >68.7</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row8_col2" class="data row8 col2" >71.7</td>
+                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row8_col0" class="data row8 col0" >8</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row8_col1" class="data row8 col1" >68.7</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row8_col2" class="data row8 col2" >71.7</td>
             </tr>
             <tr>
-                                <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row9_col0" class="data row9 col0" >9</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row9_col1" class="data row9 col1" >70.4</td>
-                        <td id="T_15b22038_0f93_11eb_b89d_23b5274849f9row9_col2" class="data row9 col2" >73.5</td>
+                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row9_col0" class="data row9 col0" >9</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row9_col1" class="data row9 col1" >70.4</td>
+                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row9_col2" class="data row9 col2" >73.5</td>
             </tr>
     </tbody>
-    
+
 </table>
 
 ## Activation delays
@@ -596,7 +605,7 @@ By comparison, looking at validators who activated from epoch 5000, over 80% suc
 
 This difference could be due to the fact that some later-joining validators on becoming aware that they might have to wait in a validation queue for several days may not have bothered to sync their nodes until they were already at the front of the queue (at a less certain time in the future), as compared with the genesis set who were working to a widely publicised gensis time.
 
-<details><summary><code>input 12</code></summary>
+<details><summary><code>input 15</code></summary>
 
 ```python
 # calculate and plot first attestation delay

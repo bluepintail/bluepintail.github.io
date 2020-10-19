@@ -1,18 +1,18 @@
 ---
 # front matter for Jekyll
 title: "The Medalla Network Under Stress"
-permalink: "/medalla-network-stress/"
+permalink: "/posts/medalla-network-stress/"
 ---
-One of the most obvious features of the data presented in the [previous article](/medalla-validator-taxonomy) was the crash in participation rate which occurred at the time of the [roughtime incident](https://medium.com/prysmatic-labs/eth2-medalla-testnet-incident-f7fbc3cc934a). A number of important lessons were identified from this incident, such as:
+One of the most obvious features of the data presented in the [previous article](/posts/medalla-validator-taxonomy) was the crash in participation rate which occurred at the time of the [roughtime incident](https://medium.com/prysmatic-labs/eth2-medalla-testnet-incident-f7fbc3cc934a). A number of important lessons were identified from this incident, such as:
 - the importance of client diversity;
 - the perils of depending on centralised service providers for consensus-critical information;
 - the value of easy and seemless switching between clients for validators;
 - the importance of rigorous release testing, even (especially) during a crisis;
 - \[and many others\].
 
-But of course, Medalla is a testnet, and exposing such potential weaknesses is one of the main reasons for running it. From the perspective of getting data and improving our understanding of how the network behaves under severe stress, it was an unexpected gift.
+But of course, Medalla is a testnet — exposing and fixing such potential weaknesses is one of the main reasons for running it. Furthermore, from the perspective of getting data and improving our understanding of how the network behaves under severe stress, it was an unexpected gift.
 
-We've already seen from the impact on the participation rate one of the ways in which network stress can manifest itself. In this notebook, we will look at a series of other metrics which may contain valuable information about network performance, providing cues about bugs or other problems.
+We've already seen from the impact on the participation rate one of the ways in which network stress can manifest itself. In this article, we will look at a series of other metrics which may contain valuable information about network performance, providing cues about bugs or other problems. Once again, we start by getting some useful data from `chaind`:
 
 <details><summary><code>input 1</code></summary>
 
@@ -24,7 +24,7 @@ import psycopg2
 import matplotlib.pyplot as plt
 from matplotlib.ticker import PercentFormatter
 import pandas as pd
-from IPython.display import display
+from IPython.display import display, clear_output
 ```
 
 </details>
@@ -70,7 +70,17 @@ validators = [{"activation_eligibility_epoch": r[0],
 
 ## Attestation metrics
 
-<details><summary><code>input 13</code></summary>
+To look at the health of the Medlla network, we're going to generate some metrics about validators' attestation performance. We've already looked at one important attestation metric: the *participation rate*. We'll calculate this again, ignoring unresponsive validators (those we previously categorised as absent, dormant or abandoned).
+
+The other metrics we calculate are:
+
+1. mean inclusion distance;
+2. mean attestation effectiveness;
+3. attestation accuracy.
+
+We will define each of these metrics as we plot them in the below charts.
+
+<details><summary><code>input 4</code></summary>
 
 ```python
 # calculate mean inclusion distance, mean attestation effectiveness, attestation accuracy metrics
@@ -120,42 +130,53 @@ for slot in range(n_epochs * 32):
         print(f"epoch {epoch} of {latest_slot//32} ({percentage:.2f}%) / "
               f"{elapsed} elapsed / {left} left", end='\r')
 
-mean_inclusion_distance = [sum_distance[e] / success_count[e] if success_count[e] > 0 else None
-                       for e in range(n_epochs)]
+participation_rate = [100 * s / (s + missed_count[e] + unresponsive_count[e]) 
+                      for e, s in enumerate(success_count)]
 
-mean_ae = [100 * sum_ae[e] / (success_count[e] + missed_count[e]) if success_count[e] > 0 else 0
-           for e in range(n_epochs)]
+participation_rate_reduced = [100 * s / (s + missed_count[e]) for e, s in enumerate(success_count)]
 
-accuracy = [100 * correct_count[e] / success_count[e] if success_count[e] > 0 else 0
-            for e in range(n_epochs)]
+mean_inclusion_distance = [sd / success_count[e] if success_count[e] > 0 else None
+                           for e, sd in enumerate(sum_distance)]
 
-print(f"completed in {elapsed}." + ' ' * 80)
+mean_ae = [100 * ae / (success_count[e] + missed_count[e] + unresponsive_count[e])
+           if success_count[e] > 0 else 0 for e, ae in enumerate(sum_ae)]
+
+mean_ae_reduced = [100 * sum_ae[e] / (success_count[e] + missed_count[e]) if success_count[e] > 0 else 0
+                   for e, ae in enumerate(sum_ae)]
+
+accuracy = [100 * c / success_count[e] if success_count[e] > 0 else 0 for e, c in enumerate(correct_count)]
+
+clear_output()
+print(f"completed in {elapsed}.")
 ```
 
 </details>
 
 ```
 output:
-    completed in 00:18:03.                                                                                
+    completed in 00:17:10.
 ```
 
 ## Participation Rate
-We looked at the participation rate in the previous notebook. It's plotted again below, excluding unresponsive validators (this time as a line graph for easier comparison).
+We looked at the participation rate in the [previous article](/posts/medalla-validator-taxonomy). It's plotted again below, both with and without unresponsive validators, this time as a line graph for easier comparison with the other metrics.
 
-<details><summary><code>input 14</code></summary>
+<details><summary><code>input 6</code></summary>
 
 ```python
 # plot participation rate
 
-participation_rate = [100 * s / (s + missed_count[i]) for i, s in enumerate(success_count)]
 participation_rate_series = pd.Series(participation_rate)
 
+participation_rate_reduced_series = pd.Series(participation_rate_reduced)
+
 fig=plt.figure(figsize=(16,6))
-plt.plot(participation_rate_series)
+plt.plot(participation_rate_series, label='participation rate')
+plt.plot(participation_rate_reduced_series, label='participation rate (excl. unresponsive)')
 plt.margins(0,0)
-plt.title('Participation rate (excl. unresponsive validators)')
+plt.title('Participation rate by epoch')
 plt.xlabel('epoch')
 plt.ylabel('participation rate (%)')
+plt.legend(loc='lower right')
 plt.show()
 ```
 
@@ -164,22 +185,22 @@ plt.show()
 ![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_8_0.png)
 
 ## Mean inclusion distance
-Another metric we can use to look at the health of the network is how quickly validators are able to have their attestations included into the beacon chain. As mentioned above, this is called the *inclusion distance*, which is the number of slots it takes for an attestatation to be included in a canonical block. By averaging this across all validators who successfully attested in a given epoch, we get a quantity called the *mean inclusion distance*. We already calculated this in the second pass through attestations above.
+Another metric we can use to look at the health of the network is how quickly validators are able to have their attestations included into the beacon chain. As mentioned above, this is called the *inclusion distance*, which is the number of slots it takes for an attestatation to be included in a canonical block. By averaging this across all validators who successfully attested in a given epoch, we get a quantity called the *mean inclusion distance*.
 
-Unsurprisingly, the mean inclusion distance jumps significantly around the roughtime incident. But interestingly there are a number of smaller spikes. A particularly large spike around epoch 4800 for example (shown in greater detail in the second graph), which could be an indication of a networking problem or bug which merits closer attention.
+One advantage of this measure is that it is not directly affected by the presence unresponsive validators, since only attestations which are acually included contribute.
 
-Looking just at the period from epoch 5000 onwards, we can see the average (mean) of the mean inclusion distance is around 0.4, suggesting that the majority of successful attestations are included in the beacon chain with an inclusion distance of 0 (i.e. at the first opportunity).
+Unsurprisingly, the mean inclusion distance jumps significantly around the roughtime incident. But interestingly there are a number of smaller spikes, some (but not all) of which match downward spikes in the participation rate.
 
-<details><summary><code>input 15</code></summary>
+<details><summary><code>input 7</code></summary>
 
 ```python
 # graphs and stats for mean inclusion distance
 
-mid_series = pd.Series(mean_inclusion_distance, name="mean inclusion distance")
+mid_series = pd.Series(mean_inclusion_distance)
 
 # plot the mean inclusion distance
 fig=plt.figure(figsize=(16,6))
-plt.plot(mid_series)
+plt.plot(mid_series, label='mean inclusion distance')
 plt.margins(0,0)
 plt.title('Mean inclusion distance of successful attestations')
 plt.xlabel('epoch')
@@ -192,24 +213,30 @@ plt.show()
 ![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_10_0.png)
 
 ## Attestation Effectiveness
-A metric that effectively combines participation rate and inclusion distance into a single score describing a validator's performance is *attestation effectiveness*, which has been defined by [Jim McDonald](https://www.attestant.io/posts/defining-attestation-effectiveness/) as the ratio between the maximum reward a validator could have received for full prompt participation, and the reward they actually received. The protocol penalises late attestations, scaling the attestation reward by the inverse of the inclusion distance.\*
+A metric that combines participation rate and inclusion distance into a single score describing a validator's performance is *attestation effectiveness*, $E_a$ which has been defined by [Jim McDonald](https://www.attestant.io/posts/defining-attestation-effectiveness/) as the ratio between the minimum possible delay for inclusion of an attestation, and the actual delay:
 
-\* For attestation effectiveness, the inclusion distance is measured from the first slot containing a valid block, since attestations will be delayed if a slot is empty, through no fault of the validator.
+$$ E_a = \frac{S_n-S_a}{S_i-S_a} $$
 
-<details><summary><code>input 16</code></summary>
+Where $S_n$ is then next slot containing a block, $S_a$ is the slot number being attested to, and $S_i$ is the slot at which the attestation was actually included. If no attestation is included then $E_a=0$. So in effect, the inclusion delay is measured from the next slot containing a canonical block, since empty slots will cause attestations to be delayed through no fault of the validator.
+
+<details><summary><code>input 8</code></summary>
 
 ```python
 # plot attestation effectiveness
 
-mean_ae_series = pd.Series(mean_ae, name="mean attestation effectiveness")
+mean_ae_series = pd.Series(mean_ae)
+
+mean_ae_reduced_series = pd.Series(mean_ae_reduced)
 
 # plot the mean inclusion distance
 fig=plt.figure(figsize=(16,6))
-plt.plot(mean_ae_series)
+plt.plot(mean_ae_series, label='mean attestation effectiveness')
+plt.plot(mean_ae_reduced_series, label='mean attestation effectiveness (excl. unresponsive)')
 plt.margins(0,0)
 plt.title('Mean attestation effectiveness')
 plt.xlabel('epoch')
 plt.ylabel('attestation effectiveness (%)')
+plt.legend(loc='lower right')
 plt.show()
 ```
 
@@ -218,8 +245,15 @@ plt.show()
 ![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_12_0.png)
 
 ## Attestation Accuracy
+A subtler measure of attestation performance may be descibred as *attestation accuracy*. In this case we are interested in whether each validator attested to the correct *beacon head root* at each slot (as in the case of mean inclusion distance, we are concerned only with attestations which were included in the canonical chain, so there is no difference from excluding unresponsive validators).
 
-<details><summary><code>input 20</code></summary>
+By *correct* here, we mean that given an attestation for slot $S_a$, the head root chosen is:
+1. canonical;
+2. the most recent canonical block up to and including slot $S_a$.
+
+So for example if a validator votes for a block in slot $S_{a}-1$, having not received any block in slot $S_a$ (due to network latency or other problems), but a block for slot $S_a$ later *does* become part of the finalised chain, then the validator can be said to have attested incorrectly. This is true even though the block to which they attested was itself canonical, and *was* at the chain head to the best of that validator's knowledge at time of attestation. Validators who attest incorrectly to the chain head receive no reward for that aspect of their attestation.
+
+<details><summary><code>input 9</code></summary>
 
 ```python
 # plot accuracy rate by epoch
@@ -240,10 +274,16 @@ plt.show()
 
 ![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_14_0.png)
 
-## Block Production Metrics (Empty Slots and Orphaned Blocks)
-The data in the `chaind` database includes some *orphaned* (or equivalently *non-canonical*) blocks — i.e. blocks which were not finalised by the consensus process. Blocks may be orphaned when networking or other problems prevent them being visible to all nodes, accordingly they are yet another indicator of network health, as shown by the large increase in orphaned blocks around the roughtime incident.
+## Block Production Metrics (Empty Slots and Lost Blocks)
+Apart from validators' performance on their attestation duties, we can also look at how validators perform as block producers. According to the eth2 spec, one validator is selected to produce a block at each slot. However for various reasons the validator might fail to do so, or might produce a block that is invalid.
 
-<details><summary><code>input 9</code></summary>
+Another possibility is that the assigned validator does produce a block, but it does no propagate to the rest of the network quickly enough to be included in the canonical chain. This block is then descrined as "orphaned" or perhaps more accurately "sterile", since its line of . Equivalently, the block is *non-canonical*, as it did not become part of the finalised chain.
+
+The set of orphaned blocks is generally subjective — in theory there might be a lost block for every empty slot. In practice there will be slots for which no block was ever produced (for example because the validator assigned to produce it was unresponseive). The lost blocks included the `chaind` database are those which were available to the beacon node which collected them. Different nodes in different parts of the network may have been able to collect other lost blocks which ultimately were not propagated throughout the whole network.
+
+Nonetheless, counts of empty slots
+
+<details><summary><code>input 10</code></summary>
 
 ```python
 # count orphaned blocks
@@ -268,7 +308,7 @@ output:
     Dataset encompases 487601 slots of which 137745 (28.2%) were empty
 ```
 
-<details><summary><code>input 10</code></summary>
+<details><summary><code>input 11</code></summary>
 
 ```python
 # plot empty slots and orphaned blocks by epoch
@@ -353,7 +393,7 @@ plt.show()
 
 ## Slashing Events
 
-<details><summary><code>input 11</code></summary>
+<details><summary><code>input 12</code></summary>
 
 ```python
 # count up slashing events, plot per epoch

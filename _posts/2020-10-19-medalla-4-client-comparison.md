@@ -1,9 +1,9 @@
 ---
 # front matter for Jekyll
 title: "Comparing the Eth2 Clients on the Medalla Network"
-permalink: "/medalla-client-comparison/"
+permalink: "/posts/medalla-client-comparison/"
 ---
-Using the client data aggregated in [data pre-processing](/medalla-data-prep), we'll now take a look at how the different clients active on the Medalla testnet compared.
+Using the client data aggregated in [data pre-processing](/posts/medalla-data-prep), we'll now take a look at how the different clients active on the Medalla testnet compared.
 
 Of course, as already mentioned, this analysis relies on the truthfulness of validators' block graffiti. It is also a snapshot in time. All the eth2 clients have continued to be developed and refined throughout the period under review. Problems apparent in the earlier phases may already have been resolved.
 
@@ -11,11 +11,13 @@ Of course, as already mentioned, this analysis relies on the truthfulness of val
 
 ```python
 # imports
-import psycopg2
 import math
 import time
+
+import psycopg2
 import matplotlib.pyplot as plt
 import pandas as pd
+from IPython.display import display, clear_output
 ```
 
 </details>
@@ -36,7 +38,7 @@ cursor = connection.cursor()
 
 </details>
 
-<details><summary><code>input None</code></summary>
+<details><summary><code>input 3</code></summary>
 
 ```python
 # get info about dataset and validators

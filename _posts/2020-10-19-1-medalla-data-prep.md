@@ -1,17 +1,19 @@
 ---
-title: Data Pre-Processing for the Medalla Challenge
+# front matter for Jekyll
+title: "Data Pre-processing for the Medalla Data Challenge"
+permalink: "/medalla-data-prep/"
 ---
-This notebook contains the pre-processing steps carried out for the [@bluepintail](https://twitter.com/bluepintail) entry into the [Medalla data challenge](https://ethereum.org/en/eth2/get-involved/medalla-data-challenge/). Visualisations and analysis of this data can be found in the following notebooks:
+This article documents the pre-processing steps carried out for an entry into the [Medalla data challenge](https://ethereum.org/en/eth2/get-involved/medalla-data-challenge/). Visualisations and analysis of this data can be found in the following notebooks:
 
-- [Medalla Participation Rates: A Validator Taxonomy](validator_taxonomy.ipynb)
-- [The Medalla Network Under Stress](network_stress.ipynb)
-- [Eth2 Client Comparisons from Medalla Data](client_comparison.ipynb)
+- [Medalla Participation Rates: A Validator Taxonomy](/medalla-validator-taxonomy)
+- [The Medalla Network Under Stress](/medalla-network-stress)
+- [Eth2 Client Comparisons from Medalla Data](/medalla-client-comparison)
 
 The data used is taken from a [database dump](http://mdc.mcdee.net/chain-487600.dmp), kindly shared by Jim McDonald ([@jgm](https://twitter.com/jgm)) of [Attestant](https://www.attestant.io/), which includes beacon chain data for the first approxiamtely 15,000 epochs (up to around 11 October 2020). The schemas for the tables in this database are included in the separate [schemas](schemas) file. Jim has made his `chaind` process for extracting beacon chain data from an ETH2 client [available for use](https://github.com/wealdtech/chaind), so the results in this notebook can be replicated and updated by first generating a database from `chaind` and your eth2 node of choice.
 
 Special thanks also to Ben Edgington ([@benjaminion_xyz](https://twitter.com/benjaminion_xyz)) whose [Eth2 Annontated Spec](https://benjaminion.xyz/eth2-annotated-spec/phase0/beacon-chain/) has been a vital resource in understanding how the beacon chain works.
 
-<details><summary><code>imports</code></summary>
+<details><summary><code>input 1</code></summary>
 
 ```python
 # imports
@@ -23,7 +25,7 @@ from bitlist import bitlist
 
 </details>
 
-<details><summary><code>open/restart connection to chaind database</code></summary>
+<details><summary><code>input 2</code></summary>
 
 ```python
 # open/restart connection to chaind database
@@ -39,8 +41,7 @@ cursor = connection.cursor()
 
 </details>
 
-
-<details><summary><code>get basic info about the dataset</code></summary>
+<details><summary><code>input 3</code></summary>
 
 ```python
 # basic info about the dataset
@@ -59,6 +60,7 @@ print(f"latest block root: {root}")
 </details>
 
 ```
+output:
     latest slot: 487600, latest complete epoch: 15236
     latest block root: 5a36cf6aee95f69a79e44ba6bcb8f81846d1704dc05e74e8e467c37fca4c29ca
 ```
@@ -70,8 +72,7 @@ We then add a new table, `t_validator_performance`, which we will populate later
 
 Finally we modify the `t_validators` table, adding some more columns we will populate with information about when they started and finished attesting, and how many blocks they succesfully proposed.
 
-
-<details><summary><code>database modifications required for this analysis</code></summary>
+<details><summary><code>input 4</code></summary>
 
 ```python
 # database modifications required for this analysis
@@ -116,6 +117,7 @@ print(f"completed database modifications in {elapsed}                           
 </details>
 
 ```
+output:
     completed database modifications in 00:02:45                             
 ```
 
@@ -124,7 +126,7 @@ One of the properties of eth2's [Casper FFG](https://arxiv.org/pdf/1710.09437.pd
 
 As in other blockchains, such as the eth1 chain, each block contains a hash of a *parent* — that is, a block at an earlier time identified as the previous block in the chain. Identiyfing all blocks in the canonical chain is therefore simply a matter of taking a recently-finalised block and tracking back through the chain via each block's parents. Helpfully, the most recent block in the `chaind` database used in this analysis *was* finalised, according to [beaconcha.in](https://beaconcha.in), so we will start tracking back from there. Any block not lying on this chain will be considered to be an orphan.
 
-<details><summary><code>identify canonical blocks</code></summary>
+<details><summary><code>input 5</code></summary>
 
 ```python
 # identify canonical blocks
@@ -174,11 +176,12 @@ print(f"database contains {result[0]} blocks of which {result[1]} are canonical 
 </details>
 
 ```
+output:
     finished (reached back to slot 0) in 00:34:36.                                                                                     
     database contains 358048 blocks of which 349856 are canonical (2.3% orphan blocks)
 ```
 
-<details><summary><code>identify canonical blocks</code></summary>
+<details><summary><code>input 6</code></summary>
 
 ```python
 # check proportion of attestations from canoncial blocks broadly matches block orphan ratio
@@ -192,6 +195,7 @@ print(f"database contains {result[0]} attestations of which {result[1]} are cano
 </details>
 
 ```
+output:
     database contains 22723853 attestations of which 22246751 are canonical (2.1% from orphan blocks)
 ```
 
@@ -207,7 +211,7 @@ Ultimately different versions of aggregated attestations end up being included i
 
 The below cell calculates the *first inclusion distance* for each active validator, at each epoch. If the validator does not have an attestation included at all, the attestation is said to be *missed*, denoted by an inclusion distance of -1. We also calculate the [attestation effectiveness](https://www.attestant.io/posts/defining-attestation-effectiveness/) for each validator, as the inverse of the *adjusted inclusion distance*. Finally, we record whether each validator attested *correctly* — that is, did the block it voted for end up being finalised?
 
-<details><summary><code>decode attestations, calculate performance, identify first/latest attestation for each validator</code></summary>
+<details><summary><code>input 7</code></summary>
 
 ```python
 # decode attestations, calculate performance, identify first/latest attestation for each validator
@@ -313,6 +317,7 @@ connection.commit()
 </details>
 
 ```
+output:
     attestations processed in 03:47:28                                                               
     indexing validator performance table...done
     saving validator first/latest attestation epochs...done
@@ -334,7 +339,7 @@ For the purposes of this analysis, we will assume that any validator which consi
 
 The cell below iterates through all canonical blocks in the dataset and where available, uses the `graffiti` field to guess which client produced the blocks. If information from different blocks suggests different clients were used, the validator is marked as *ambiguous*. We also count up the total number of blocks proposed by each validator.
 
-<details><summary><code>determine validator clients from block graffiti, count proposed blocks per validator</code></summary>
+<details><summary><code>input 8</code></summary>
 
 ```python
 # determine validator clients from block graffiti, count proposed blocks per validator
@@ -397,10 +402,11 @@ for i, client in enumerate(clients):
 connection.commit()
 print("done")
 ```
+
 </details>
 
 ```
+output:
     block proposers processed in 00:00:01                                                            
     saving validator info...done
 ```
-

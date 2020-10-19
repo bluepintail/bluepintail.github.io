@@ -1,9 +1,13 @@
-Using the client data aggregated in the [data pre-processing notebook](data_prep.ipynb), we'll now take a look at how the different clients active on the Medalla testnet compared.
+---
+# front matter for Jekyll
+title: "Comparing the Eth2 Clients on the Medalla Network"
+permalink: "/medalla-client-comparison/"
+---
+Using the client data aggregated in the [data pre-processing notebook](/medalla-data-prep), we'll now take a look at how the different clients active on the Medalla testnet compared.
 
 Of course, as already mentioned, this analysis relies on the truthfulness of validators' block graffiti. It is also a snapshot in time. All the eth2 clients have continued to be developed and refined throughout the period under review. Problems apparent in the earlier phases may already have been resolved.
 
-<details>
-<summary><code>imports</code></summary>
+<details><summary><code>input 1</code></summary>
 
 ```python
 # imports
@@ -12,14 +16,11 @@ import math
 import time
 import matplotlib.pyplot as plt
 import pandas as pd
-
-from chaindtools import *
 ```
 
 </details>
 
-<details>
-<summary><code>open/restart connection to chaind database</code></summary>
+<details><summary><code>input 2</code></summary>
 
 ```python
 # open/restart connection to chaind database
@@ -32,10 +33,10 @@ except:
 connection = psycopg2.connect(user="chain", host="127.0.0.1", database="chain", password="medalla")
 cursor = connection.cursor()
 ```
+
 </details>
 
-<details>
-<summary><code>get info about dataset and validators</code></summary>
+<details><summary><code>input None</code></summary>
 
 ```python
 # get info about dataset and validators
@@ -58,13 +59,13 @@ validators = [{"activation_eligibility_epoch": r[0],
                "client"                      : r[6],
                "proposed_count"              : r[7]} for r in result]
 ```
+
 </details>
 
 ## Client proportions
 It turns out that the majority of validators (71%) did not provide information in block graffiti which could be used to identify the client used. This includes all validators which did not propose any blocks, since graffiti is only supplied by the block producer. For this reason, validators who were *absent* or those which did not participate long enough to propose any blocks, are excluded.
 
-<details>
-<summary><code>determine validator clients from block graffiti</code></summary>
+<details><summary><code>input 4</code></summary>
 
 ```python
 # determine validator clients from block graffiti
@@ -155,18 +156,18 @@ plt.show()
 
 </details>
 
+```
+output:
     Number of validators: 80328
     22347 provided client info (27.8%)
     41693 no info (51.9%)
     16288 no blocks produced (20.3%)
+```
 
+![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_6_1.png)
 
-
-    
-![png]({{ "/assets/images/output_5_1.png" }})
-    
-
-
+```
+output:
     Number of validators providing client info: 22347
     10046 Prysm (45.0%)
      6656 Lighthouse (29.8%)
@@ -174,15 +175,11 @@ plt.show()
      1500 Nimbus (6.7%)
        99 Lodestar (0.4%)
      2177 ambiguous (9.7%)
+```
 
+![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_6_3.png)
 
-
-    
-![png]({{ "/assets/images/output_5_3.png" }})
-    
-
-<details>
-<summary><code>calculate participation rates, mean inclusion distance and attestation effectiveness for each client</code></summary>
+<details><summary><code>input 5</code></summary>
 
 ```python
 # calculate participation rates, mean inclusion distance and attestation effectiveness for each client
@@ -242,16 +239,17 @@ print(f"Pass completed in {elapsed}." + ' ' * 50)
 
 </details>
 
+```
+output:
     Pass completed in 02:11:13.                                                  
-
+```
 
 ## Participation rate
 Let's have a look at how the participation rates for the different clients compare. As in the previous notebook, we're going to ignore *dormant* and *abandoned* validators. As mentioned above, *absent* validators are already excluded from this dataset. Also, given the very low number of validators self-identifying as Lodestar, this client will be excluded from the remaining analysis, since any results from such a small sample would be unreliable.
 
 The lines below have also been smoothed with a 16-epoch moving average, as they are a bit too fuzzy to compare between clients otherwise.
 
-<details>
-<summary><code>calculate/describe/plot participation rates by client</code></summary>
+<details><summary><code>input 6</code></summary>
 
 ```python
 # calculate/describe/plot participation rates by client
@@ -295,6 +293,9 @@ plt.show()
 ```
 
 </details>
+
+```
+output:
                   prysm    lighthouse          teku        nimbus
     count  15238.000000  15238.000000  15238.000000  15238.000000
     mean      87.635560     77.818117     85.422726     50.087501
@@ -304,14 +305,12 @@ plt.show()
     50%       94.261252     92.225358     90.380184     51.164453
     75%       96.825669     95.621977     94.541910     78.005343
     max      100.000000    100.000000    100.000000    100.000000
+```
 
+![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_9_1.png)
 
-
-    
-![png]({{ "/assets/images/output_8_1.png" }})
-    
-
-
+```
+output:
                   prysm    lighthouse          teku        nimbus
     count  10238.000000  10238.000000  10238.000000  10238.000000
     mean      93.922359     92.267645     90.266614     57.450233
@@ -321,20 +320,14 @@ plt.show()
     50%       96.109257     94.966887     90.231570     62.905015
     75%       97.366127     96.288826     94.007264     84.214232
     max      100.000000    100.000000    100.000000    100.000000
+```
 
-
-
-    
-![png]({{ "/assets/images/output_8_3.png" }})
-    
-
+![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_9_3.png)
 
 ## Mean inclusion distance
 Let's repeat the plot of mean inclusion distance we previously saw for the network as a whole, this time, broken down by client. Again the data is smoothed with a 16-epoch moving average to make it easier to see what's going on.
 
-<details>
-<summary><code>graphs and stats for mean inclusion distance</summary></code>
-
+<details><summary><code>input 7</code></summary>
 
 ```python
 # graphs and stats for mean inclusion distance
@@ -375,6 +368,8 @@ plt.show()
 
 </details>
 
+```
+output:
     Mean inclusion distance statistics
     
                   prysm    lighthouse          teku        nimbus
@@ -386,15 +381,13 @@ plt.show()
     50%        0.444371      0.389592      0.505647      0.570352
     75%        0.631329      0.578852      0.799285      0.959139
     max       29.400000     31.000000     31.000000     31.000000
-    
 
+```
 
+![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_11_1.png)
 
-    
-![png]({{ "/assets/images/output_10_1.png" }})
-    
-
-
+```
+output:
     Mean inclusion distance statistics
     
                   prysm    lighthouse          teku        nimbus
@@ -406,17 +399,14 @@ plt.show()
     50%        0.443467      0.354133      0.403502      0.513309
     75%        0.600819      0.495992      0.588165      0.813519
     max        9.095454      9.010593      8.993289      9.191638
-    
 
+```
 
-
-    
-![png]({{ "/assets/images/output_10_3.png" }})
-    
-
+![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_11_3.png)
 
 ## Attestation effectiveness
 
+<details><summary><code>input 8</code></summary>
 
 ```python
 # graphs and stats for attestation effectiveness
@@ -455,6 +445,10 @@ plt.ylabel('Attestation Effectiveness (%)')
 plt.show()
 ```
 
+</details>
+
+```
+output:
     Attestation Effectiveness statistics
     
                   prysm    lighthouse          teku        nimbus
@@ -466,15 +460,13 @@ plt.show()
     50%       91.545155     88.889003     84.889902     45.110669
     75%       94.714884     92.898958     89.295413     71.222609
     max       98.904054     98.820932     98.750805     97.112029
-    
 
+```
 
+![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_13_1.png)
 
-    
-![png]({{ "/assets/images/output_12_1.png" }})
-    
-
-
+```
+output:
     Attestation Effectiveness statistics (epoch 5000 onwards)
     
                   prysm    lighthouse          teku        nimbus
@@ -486,11 +478,7 @@ plt.show()
     50%       93.111943     91.850087     87.224604     56.456293
     75%       95.507526     93.955488     90.371962     75.660009
     max       98.400035     98.820932     98.750805     97.112029
-    
 
+```
 
-
-    
-![png]({{ "/assets/images/output_12_3.png" }})
-    
-
+![png](/assets/images/medalla-client-comparison_files/medalla-client-comparison_13_3.png)

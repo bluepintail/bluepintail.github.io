@@ -312,7 +312,7 @@ output:
     Dataset encompases 487601 slots of which 137745 (28.2%) were empty
 ```
 
-<details><summary><code>input 10</code></summary>
+<details><summary><code>input 25</code></summary>
 
 ```python
 # plot empty slots and orphaned blocks by epoch
@@ -375,11 +375,11 @@ empty_responsive_count = [0] * n_epochs
 for slot in range(0, n_epochs * 32, 32):
     empty_responsive_count[slot // 32] = sum(empty_slots_responsive[slot:slot+32])
     
-empty_responsive_count_series = pd.Series(empty_responsive_count)
+empty_count_reduced_series = pd.Series(empty_responsive_count)
 
 # plot empty (responsive) count
 fig=plt.figure(figsize=(16,6))
-plt.plot(empty_responsive_count_series)
+plt.plot(empty_count_reduced_series)
 plt.margins(0,0)
 plt.title('Empty slots per epoch (excl. unresponsive validators)')
 plt.xlabel('epoch')
@@ -396,9 +396,9 @@ plt.show()
 ![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_17_2.png)
 
 ## Slashing Events
-The final indicator we will consider in this article is the occurence of slashing events. 
+The final indicator we will consider in this article is the occurence of slashing events. Slashing occurs when a validator provably misbehaves, for example by attesting to two different blocks in the same slot. Slashing results in the offending validator losing a significant proportion of its stake and then being immediately ejected from the set. The number of slashing events occuring in each epoch is plotted below.
 
-<details><summary><code>input 11</code></summary>
+<details><summary><code>input 15</code></summary>
 
 ```python
 # count up slashing events, plot per epoch
@@ -425,4 +425,120 @@ plt.show()
 
 ![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_19_0.png)
 
+In this plot we see the increased frequency of slashing events which occurred during the roughtime incident. This may have been caused by users switching clients quickly and therefore attesting more than once for the same slot, or possibly due to client bugs. However, outside of this period no obvious pattern of slashing events is evident. We will therefore not look at this indicator any further for this article.
+
+## Baselining
+We can use the metrics identified to highlight other periods of network stress which may warrant closer attention. One way of doing this is to baseline the metrics on a period believed to represent a healthy network, and then identify excursions a significant distance from this baseline. Since the "reduced" versions of the metrics above (i.e. those which exclude unresponsive validators) appear to maintain a more consistent baseline, we will stick to those versions in this section. For our baseline, we calculate the mean and standard deviation for each metric over the period from epoch 6000 to epoch 9000. We then plot the normalised metrics below.
+
+<details><summary><code>input 67</code></summary>
+
+```python
+# get baselean mean and standard deviations for each metric
+pr_mean = participation_rate_reduced_series.iloc[6000:9000].mean()
+pr_std  = participation_rate_reduced_series.iloc[6000:9000].std()
+id_mean = mid_series.iloc[6000:9000].mean()
+id_std  = mid_series.iloc[6000:9000].std()
+ae_mean = mean_ae_reduced_series.iloc[6000:9000].mean()
+ae_std  = mean_ae_reduced_series.iloc[6000:9000].std()
+ac_mean = accuracy_series.iloc[6000:9000].mean()
+ac_std  = accuracy_series.iloc[6000:9000].std()
+ob_mean = orphaned_blocks_series.iloc[6000:9000].mean()
+ob_std  = orphaned_blocks_series.iloc[6000:9000].std()
+es_mean = empty_count_reduced_series.iloc[6000:9000].mean()
+es_std  = empty_count_reduced_series.iloc[6000:9000].std()
+
+pr_norm = (participation_rate_reduced_series - pr_mean) / pr_std
+id_norm = (mid_series                        - id_mean) / id_std
+ae_norm = (mean_ae_reduced_series            - ae_mean) / ae_std
+ac_norm = (accuracy_series                   - ac_mean) / ac_std
+ob_norm = (orphaned_blocks_series            - ob_mean) / ob_std
+es_norm = (empty_count_reduced_series        - es_mean) / es_std
+
+# plot normalised metrics
+fig=plt.figure(figsize=(16,6))
+plt.plot(pr_norm, label='normalised participation rate')
+plt.plot(id_norm, label='normalised inclusion distance')
+plt.plot(ae_norm, label='normalised attestation effectiveness')
+plt.plot(ac_norm, label='normalised accuracy')
+plt.plot(ob_norm, label='normalised orphan rate')
+plt.plot(es_norm, label='normalised empty rate')
+plt.margins(0,0)
+plt.title('Normalised metrics')
+plt.xlabel('epoch')
+plt.ylabel('standard deviations from baseline')
+plt.legend(loc='upper right')
+plt.show()
+```
+
+</details>
+
+![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_22_0.png)
+
+Once again, the roughtime incident dominates the plot, but a number of other spikes are apparent. For these the normalised inclusion distance appears to be the most sensitive (or possibly noisy) metric, while the orphan/empty rates appear to be less descriptive. Since 1-per-slot metrics are much coarser, we will eliminate them from the next analysis section. Meanwhile, since attestation effectiveness combines participation rate and mean inclusion distance, we will allow it to stand for all three. This leaves us with two metrics which we can use to look for anomalies:
+
+- normalised attestation effectiveness
+- noramlised accuracy
+
+They are plotted on their own below for greater clarity.
+
+<details><summary><code>input 66</code></summary>
+
+```python
+# plot normalised metrics
+fig=plt.figure(figsize=(16,6))
+plt.plot(ae_norm, label='normalised attestation effectiveness', color='tab:green')
+plt.plot(ac_norm, label='normalised accuracy', color='tab:red')
+plt.margins(0,0)
+plt.title('Normalised metrics')
+plt.xlabel('epoch')
+plt.ylabel('standard deviations from baseline')
+plt.legend(loc='lower right')
+plt.show()
+```
+
+</details>
+
+![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_24_0.png)
+
+## Anomaly Detection
+Having chosen our metrics for identifying anomalies we can now run a very simple anomaly detection algorithm to find the 'spikes' of interest. We report any epoch where either of the two metrics (effectiveness/accuracy) is more than 10 standard devations from the baseline. We will start from epoch 4000 to exclude the roughtime incident.
+
+Results are shown in the table below, which appears to show that attestation effectiveness is a more sensitive metric. However, for one of the anomalies (epoch 4805), the attestation accuracy deviated almost as far.
+
+<details><summary><code>input 63</code></summary>
+
+```python
+# basic anomaly detection over attestation effectiveness and accuracy
+
+sensitivity = 10
+print("epoch effectiveness accuracy")
+for epoch in range(4000,n_epochs):
+    if abs(ae_norm.iloc[epoch]) > sensitivity or abs(ac_norm.iloc[epoch]) > sensitivity:
+        print(f"{epoch}".rjust(5), f"{ae_norm.iloc[epoch]:.1f}".rjust(9), f"{ac_norm.iloc[epoch]:.1f}".rjust(9))
+```
+
+</details>
+
+```
+output:
+    epoch effectiveness accuracy
+     4805     -16.7     -14.9
+     4822     -13.3      -1.0
+    10591     -11.0       0.3
+    13334     -10.7      -2.3
+    13690     -12.4       0.5
+    13691     -21.8       0.7
+    13932     -10.8      -0.3
+    14302     -22.5       0.6
+    14303     -15.7      -1.8
+    14305     -10.2      -0.6
+    14308     -11.9       0.3
+```
+
 ## Conclusions
+In this article, we've seen how network conditions can impact on a range of metrics derived from eth2 client data. We've also seen how these metrics could be used for anomaly detection, to highlight periods of increased stress, and perhaps hint at their causes. In particular, we found that the attestation effectiveness and attestation accuracy sometimes seemed to contain complementary information about types of network stress.
+
+To understand exactly what was happening for each of these anomalous epochs, it would be necessary to look in much more detail about what was happening slot by slot for each of the metrics (and perhaps consider additional information), which could be the subject of a future article.
+
+## Ackowledgement
+Many thanks to [Barnabé Monnot](https://twitter.com/barnabemonnot) for helping me get attestation accuracy right.

@@ -129,7 +129,7 @@ status_data = pd.DataFrame({'waiting': waiting_count, 'active': active_count,
 
 ```
 output:
-    completed in 00:06:22                                                  
+    completed in 00:05:58                                                  
 ```
 
 The chart below shows the evolution of each of these categories of validator. We can see at genesis that almost the entire validator set is composed of *active* validators — those who submitted their deposits prior to genesis. During most of the period the active validator set grows linearly as the queue of *waiting* validators is processed.
@@ -283,7 +283,7 @@ print(f"completed in {elapsed}.")
 
 ```
 output:
-    completed in 00:12:51.
+    completed in 00:12:29.
 ```
 
 ## Participation trends
@@ -370,13 +370,10 @@ In the statistics and plots below we find that over 90% of epochs were above ⅔
 
 From epoch 5000 onwards, we find that 99.8% of epochs reached the ⅔ quorum. If we exclude unresponsive validators, this reaches 100%.
 
-<details><summary><code>input 13</code></summary>
+<details><summary><code>input 10</code></summary>
 
 ```python
 # participation rate statistics - include/exclude roughtime, non-live validators
-
-fig, axs = plt.subplots(2, 2, figsize=(15,9))
-fig.suptitle('Participation rate by epoch')
 
 print("participation rate statistics by epoch\n")
 
@@ -417,6 +414,9 @@ col2.append(f"epochs over 2/3 participation: {quorate:.1f}%")
 for row, text in enumerate(col1):
     print(text.ljust(45,' ') + col2[row])
 
+fig, axs = plt.subplots(2, 2, figsize=(15,9))
+fig.suptitle('Participation rate by epoch')
+    
 perc_participation_data['successful'].plot.hist(density=True, bins=range(0,101), ax=axs[0,0])
 axs[0, 0].set_title('all data')
 axs[0, 0].set_ylabel('% of validators')
@@ -483,7 +483,7 @@ This was a pattern that was repeated for the "genesis rehearsal" *Spadina* testn
 
 On the positive side, the actual penalties for non-participating validators (known as inactivity leak) are not severe, as long as the period of non-finality is reasonably short. A repeat of Medalla's ~1 hour wait for finality would not be a serious problem.
 
-<details><summary><code>input 14</code></summary>
+<details><summary><code>input 11</code></summary>
 
 ```python
 # draw stacked plot for the first 100 epochs - but excluding absent validators
@@ -537,58 +537,64 @@ display(comp.reset_index().head(10).style
 ![png](/assets/images/medalla-2-validator-taxonomy_files/medalla-2-validator-taxonomy_20_0.png)
 
 <style  type="text/css" >
-</style><table id="T_926cab80_121c_11eb_b89d_23b5274849f9" ><caption>Participation rates (%) first 10 epochs</caption><thead>    <tr>        <th class="col_heading level0 col0" >epoch</th>        <th class="col_heading level0 col1" >All data</th>        <th class="col_heading level0 col2" >Excluding absent</th>    </tr></thead><tbody>
+</style>
+
+<table id="T_07f7566e_12d3_11eb_b89d_23b5274849f9" >
+
+<caption>Participation rates (%) first 10 epochs</caption><thead>    <tr>        <th class="col_heading level0 col0" >epoch</th>        <th class="col_heading level0 col1" >All data</th>        <th class="col_heading level0 col2" >Excluding absent</th>    </tr></thead><tbody>
                 <tr>
-                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row0_col0" class="data row0 col0" >0</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row0_col1" class="data row0 col1" >59.8</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row0_col2" class="data row0 col2" >62.4</td>
+                                <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row0_col0" class="data row0 col0" >0</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row0_col1" class="data row0 col1" >59.8</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row0_col2" class="data row0 col2" >62.4</td>
             </tr>
             <tr>
-                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row1_col0" class="data row1 col0" >1</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row1_col1" class="data row1 col1" >57.7</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row1_col2" class="data row1 col2" >60.3</td>
+                                <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row1_col0" class="data row1 col0" >1</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row1_col1" class="data row1 col1" >57.7</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row1_col2" class="data row1 col2" >60.3</td>
             </tr>
             <tr>
-                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row2_col0" class="data row2 col0" >2</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row2_col1" class="data row2 col1" >58.2</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row2_col2" class="data row2 col2" >60.7</td>
+                                <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row2_col0" class="data row2 col0" >2</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row2_col1" class="data row2 col1" >58.2</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row2_col2" class="data row2 col2" >60.7</td>
             </tr>
             <tr>
-                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row3_col0" class="data row3 col0" >3</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row3_col1" class="data row3 col1" >58.5</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row3_col2" class="data row3 col2" >61.1</td>
+                                <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row3_col0" class="data row3 col0" >3</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row3_col1" class="data row3 col1" >58.5</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row3_col2" class="data row3 col2" >61.1</td>
             </tr>
             <tr>
-                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row4_col0" class="data row4 col0" >4</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row4_col1" class="data row4 col1" >60.2</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row4_col2" class="data row4 col2" >62.9</td>
+                                <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row4_col0" class="data row4 col0" >4</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row4_col1" class="data row4 col1" >60.2</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row4_col2" class="data row4 col2" >62.9</td>
             </tr>
             <tr>
-                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row5_col0" class="data row5 col0" >5</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row5_col1" class="data row5 col1" >63.0</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row5_col2" class="data row5 col2" >65.8</td>
+                                <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row5_col0" class="data row5 col0" >5</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row5_col1" class="data row5 col1" >63.0</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row5_col2" class="data row5 col2" >65.8</td>
             </tr>
             <tr>
-                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row6_col0" class="data row6 col0" >6</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row6_col1" class="data row6 col1" >69.6</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row6_col2" class="data row6 col2" >72.6</td>
+                                <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row6_col0" class="data row6 col0" >6</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row6_col1" class="data row6 col1" >69.6</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row6_col2" class="data row6 col2" >72.6</td>
             </tr>
             <tr>
-                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row7_col0" class="data row7 col0" >7</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row7_col1" class="data row7 col1" >68.9</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row7_col2" class="data row7 col2" >71.9</td>
+                                <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row7_col0" class="data row7 col0" >7</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row7_col1" class="data row7 col1" >68.9</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row7_col2" class="data row7 col2" >71.9</td>
             </tr>
             <tr>
-                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row8_col0" class="data row8 col0" >8</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row8_col1" class="data row8 col1" >68.7</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row8_col2" class="data row8 col2" >71.7</td>
+                                <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row8_col0" class="data row8 col0" >8</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row8_col1" class="data row8 col1" >68.7</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row8_col2" class="data row8 col2" >71.7</td>
             </tr>
             <tr>
-                                <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row9_col0" class="data row9 col0" >9</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row9_col1" class="data row9 col1" >70.4</td>
-                        <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row9_col2" class="data row9 col2" >73.5</td>
+                                <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row9_col0" class="data row9 col0" >9</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row9_col1" class="data row9 col1" >70.4</td>
+                        <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row9_col2" class="data row9 col2" >73.5</td>
             </tr>
-    </tbody></table>
+    </tbody>
+
+</table>
 
 ## Activation delays
 An interesting question arises from the delay in reaching quorum after genesis — do new validators always struggle to join the network, or is this an issue which occurred at genesis and was less important once the network was established? We can look at this by counting how *late* each validator is with its first attestation. Genesis validators are expected to attest in epoch 0, while later validators should first attest during their `attestation_epoch`.
@@ -599,7 +605,7 @@ By comparison, looking at validators who activated from epoch 5000, over 80% suc
 
 This difference could be due to the fact that some later-joining validators on becoming aware that they might have to wait in a validation queue for several days may not have bothered to sync their nodes until they were already at the front of the queue (at a less certain time in the future), as compared with the genesis set who were working to a widely publicised gensis time.
 
-<details><summary><code>input 15</code></summary>
+<details><summary><code>input 12</code></summary>
 
 ```python
 # calculate and plot first attestation delay
@@ -627,7 +633,7 @@ n_genesis_late       = sum([v['first_attestation'] >  50 for v in genesis_valida
 
 print("Genesis validators")
 print("------------------")
-print(f"Number of validators: {n_genesis_validators} "
+print(f"Number of validators: {n_genesis_validators:,} "
       f"(of which {100*n_genesis_live/n_genesis_validators:.1f}% non-absent)\n"
       f"{100*n_genesis_prompt/n_genesis_validators:.1f}% "
       f"of non-absent genesis validators attested successfully in their first active epoch.\n"
@@ -643,7 +649,7 @@ n_post5000_late       = sum([v['first_attestation']  - v['activation_epoch'] > 5
 
 print("Validators activated since epoch 5000")
 print("-------------------------------------")
-print(f"Number of validators: {n_post5000_validators} "
+print(f"Number of validators: {n_post5000_validators:,} "
       f"(of which {100*n_post5000_live/n_post5000_validators:.1f}% non-absent)\n"
       f"{100*n_post5000_prompt/n_post5000_validators:.1f}% "
       f"of non-absent validators attested successfully in their first active epoch.\n"

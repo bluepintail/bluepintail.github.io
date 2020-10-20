@@ -537,11 +537,7 @@ display(comp.reset_index().head(10).style
 ![png](/assets/images/medalla-2-validator-taxonomy_files/medalla-2-validator-taxonomy_20_0.png)
 
 <style  type="text/css" >
-</style>
-
-<table id="T_926cab80_121c_11eb_b89d_23b5274849f9" >
-
-<caption>Participation rates (%) first 10 epochs</caption><thead>    <tr>        <th class="col_heading level0 col0" >epoch</th>        <th class="col_heading level0 col1" >All data</th>        <th class="col_heading level0 col2" >Excluding absent</th>    </tr></thead><tbody>
+</style><table id="T_926cab80_121c_11eb_b89d_23b5274849f9" ><caption>Participation rates (%) first 10 epochs</caption><thead>    <tr>        <th class="col_heading level0 col0" >epoch</th>        <th class="col_heading level0 col1" >All data</th>        <th class="col_heading level0 col2" >Excluding absent</th>    </tr></thead><tbody>
                 <tr>
                                 <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row0_col0" class="data row0 col0" >0</td>
                         <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row0_col1" class="data row0 col1" >59.8</td>
@@ -592,9 +588,7 @@ display(comp.reset_index().head(10).style
                         <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row9_col1" class="data row9 col1" >70.4</td>
                         <td id="T_926cab80_121c_11eb_b89d_23b5274849f9row9_col2" class="data row9 col2" >73.5</td>
             </tr>
-    </tbody>
-
-</table>
+    </tbody></table>
 
 ## Activation delays
 An interesting question arises from the delay in reaching quorum after genesis — do new validators always struggle to join the network, or is this an issue which occurred at genesis and was less important once the network was established? We can look at this by counting how *late* each validator is with its first attestation. Genesis validators are expected to attest in epoch 0, while later validators should first attest during their `attestation_epoch`.

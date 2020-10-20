@@ -125,7 +125,7 @@ print(f"completed database modifications in {elapsed}")
 
 ```
 output:
-    completed database modifications in 00:02:18
+    completed database modifications in 00:02:39
 ```
 
 ## Identifying Canonical Blocks
@@ -185,7 +185,7 @@ print(f"database contains {result[0]:,} blocks of which {result[1]:,} are canoni
 
 ```
 output:
-    finished (reached back to slot 0) in 00:32:11.
+    finished (reached back to slot 0) in 00:33:26.
     database contains 358,048 blocks of which 349,856 are canonical (2.3% orphan blocks)
 ```
 
@@ -281,6 +281,12 @@ for slot in range(latest_slot):
     earliest_inclusion_slot = cursor.fetchone()[0]
     min_distance = earliest_inclusion_slot - slot - 1
     
+    # get the chain head at this slot
+    cursor.execute(f"SELECT f_slot, f_root FROM t_blocks WHERE f_slot <= {slot} AND f_canonical "
+                   f"ORDER BY f_slot DESC LIMIT 1")
+    result = cursor.fetchone()
+    head_slot, head_root = result[0], result[1].hex()
+    
     # get all canonical attestations made for this slot
     cursor.execute(f"SELECT f_committee_index, f_inclusion_slot, f_aggregation_bits, "
                    f"f_inclusion_block_root, f_beacon_block_root FROM t_attestations "
@@ -289,26 +295,9 @@ for slot in range(latest_slot):
     
     for attestation in attestations:
         committee_index, inclusion_slot, aggregation_bits = attestation[:3]
-        attestation_root, head_root = attestation[3].hex(), attestation[4].hex()
+        inclusion_root, attestation_head_root = attestation[3].hex(), attestation[4].hex()
         
-        # to determine if this attestation is "correct", first check it attests to a canonical block
-        cursor.execute(f"SELECT f_canonical, f_slot FROM t_blocks WHERE f_root = '\\x{head_root}'")
-        result = cursor.fetchone()
-        if result:
-            (canonical, head_slot) = result
-            if not canonical:
-                correct = -1
-            elif head_slot == slot:
-                correct = 1
-            else:
-                # if head for this attestation is not current slot, check the intervening slots were empty 
-                cursor.execute(f"SELECT SUM(f_canonical::int) FROM t_blocks "
-                               f"WHERE f_slot > {head_slot} AND f_slot <= {slot}")
-                count = cursor.fetchone()[0]
-                
-                correct = 1 if count == 0 else -1
-        else:
-            correct = -1
+        correct = 1 if attestation_head_root == head_root else -1
         
         inclusion_distance = inclusion_slot - slot - 1
         committee_participation = decode_attestation(aggregation_bits, committee_lookup[committee_index])
@@ -365,19 +354,12 @@ connection.commit()
 
 ```
 output:
-    attestations processed in 04:30:22
+    attestations processed in 02:23:47
     indexing validator performance table...done
     saving validator first/latest attestation epochs...done
 ```
 
 ## Identifying Validator Clients and Block Producers
-Finally, we will attempt to compare the performance of the different eth2 clients participating in the Medalla testnet. These clients are:
-- [Prysm](https://github.com/prysmaticlabs/prysm) from [Prysmatic Labs](https://prysmaticlabs.com/)
-- [Lighthouse](https://github.com/sigp/lighthouse) from [Sigma Prime](https://sigmaprime.io/)
-- [Teku](https://github.com/PegaSysEng/teku) from [PegaSys](https://pegasys.tech/)
-- [Nimbus](https://github.com/status-im/nimbus) from [Status.im](https://status.im/)
-- [Lodestar](https://github.com/ChainSafe/lodestar) from [Chainsafe](https://chainsafe.io/)
-
 There is no definitive way to identify which client software powers each validator — as long as a given client follows the protocol rules, it is equivalent to any other client from the perspective of the network. However, for the purposes of Medalla, many users chose to indicate what client they were using in the `graffiti` field in blocks they propose. Those aiming to collect [POAP non-fungible tokens (NFTs)](https://beaconcha.in/poap) will have set their validators to include a graffiti string indicating their eth1 deposit address, and ending with a letter A, B, C, D or E, corresponding to the Prysm, Lighthouse, Teku, Nimbus and Lodestar clients respectively. For example, the third block in the dataset has the graffiti `poapg4eM7/cwRi/ZhaZg0zp6b9A6JlcA` indicating the block was produced by the Prysm client. Other validators have included the full name of their client in the graffiti — the very next block includes the graffiti `Lighthouse/v0.2.0/f26adc0a`. It seems a reasonable guess that this block was produced by the Lighthouse client.
 
 Of course, the graffiti field can be set to whatever the user running the validator chooses, including misleading information about the client being used. For the most part there is little reason to expect users would be untruthful, with the exception that some may have chosen to game the POAP system to collect NFTs for all clients without the hassle of actually installing and using them. Nonetheless, to make progress with our analysis we will need to assume that the majority of validators were honest. Where we have large numbers of validators indicating the use of a certain client therefore, we might expect to gain  some insight into how that client has performed in aggregate. We may need to be a little more cautious if there are clients with a very small number of validators indicating participation through their beacon chain graffiti.

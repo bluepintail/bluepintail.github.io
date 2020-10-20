@@ -147,20 +147,20 @@ mean_ae_reduced = [100 * sum_ae[e] / (success_count[e] + missed_count[e]) if suc
 accuracy = [100 * c / success_count[e] if success_count[e] > 0 else 0 for e, c in enumerate(correct_count)]
 
 clear_output()
-print(f"completed in {elapsed}.")
+print(f"completed in {elapsed}")
 ```
 
 </details>
 
 ```
 output:
-    completed in 00:17:10.
+    completed in 00:17:22
 ```
 
 ## Participation Rate
 We looked at the participation rate in the [previous article](/posts/medalla-validator-taxonomy). It's plotted again below, both with and without unresponsive validators, this time as a line graph for easier comparison with the other metrics.
 
-<details><summary><code>input 6</code></summary>
+<details><summary><code>input 5</code></summary>
 
 ```python
 # plot participation rate
@@ -191,7 +191,7 @@ One advantage of this measure is that it is not directly affected by the presenc
 
 Unsurprisingly, the mean inclusion distance jumps significantly around the roughtime incident. But interestingly there are a number of smaller spikes, some (but not all) of which match downward spikes in the participation rate.
 
-<details><summary><code>input 7</code></summary>
+<details><summary><code>input 6</code></summary>
 
 ```python
 # graphs and stats for mean inclusion distance
@@ -217,9 +217,9 @@ A metric that combines participation rate and inclusion distance into a single s
 
 $$ E_a = \frac{S_n-S_a}{S_i-S_a} $$
 
-Where $S_n$ is then next slot containing a block, $S_a$ is the slot number being attested to, and $S_i$ is the slot at which the attestation was actually included. If no attestation is included then $E_a=0$. So in effect, the inclusion delay is measured from the next slot containing a canonical block, since empty slots will cause attestations to be delayed through no fault of the validator.
+Where $S_n$ is then next slot containing a block, $S_a$ is the slot number being attested to, and $S_i$ is the slot at which the attestation was actually included. In the best case, the attestation is included at the next possible slot, i.e. $S_i=S_n$ and the attestation effectiveness $E_a=1$. If no attestation is included then $E_a=0$. In effect then, inclusion delay is measured from the next slot containing a canonical block, since empty slots will cause attestations to be delayed through no fault of the validator.
 
-<details><summary><code>input 8</code></summary>
+<details><summary><code>input 7</code></summary>
 
 ```python
 # plot attestation effectiveness
@@ -245,15 +245,17 @@ plt.show()
 ![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_12_0.png)
 
 ## Attestation Accuracy
-A subtler measure of attestation performance may be descibred as *attestation accuracy*. In this case we are interested in whether each validator attested to the correct *beacon head root* at each slot (as in the case of mean inclusion distance, we are concerned only with attestations which were included in the canonical chain, so there is no difference from excluding unresponsive validators).
+A subtler measure of attestation performance may be descibred as *attestation accuracy*. In this case we are interested in whether each validator attested to the correct *head root* at each slot.
 
 By *correct* here, we mean that given an attestation for slot $S_a$, the head root chosen is:
 1. canonical;
 2. the most recent canonical block up to and including slot $S_a$.
 
-So for example if a validator votes for a block in slot $S_{a}-1$, having not received any block in slot $S_a$ (due to network latency or other problems), but a block for slot $S_a$ later *does* become part of the finalised chain, then the validator can be said to have attested incorrectly. This is true even though the block to which they attested was itself canonical, and *was* at the chain head to the best of that validator's knowledge at time of attestation. Validators who attest incorrectly to the chain head receive no reward for that aspect of their attestation.
+So for example if a validator votes for a block in slot $S_a-1$, having not received any block in slot $S_a$ (due to network latency or other problems), but a block for slot $S_a$ later *does* become part of the finalised chain, then the validator can be said to have attested *incorrectly*. This is true even though the block to which they attested was itself canonical, and *was* at the chain head to the best of that validator's knowledge at time of attestation. Validators who attest incorrectly to the chain head receive no reward for that aspect of their attestation.
 
-<details><summary><code>input 9</code></summary>
+As in the case of mean inclusion distance, we are concerned only with attestations which were included in the canonical chain, so there is no difference from excluding unresponsive validators.
+
+<details><summary><code>input 8</code></summary>
 
 ```python
 # plot accuracy rate by epoch
@@ -274,16 +276,18 @@ plt.show()
 
 ![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_14_0.png)
 
-## Block Production Metrics (Empty Slots and Lost Blocks)
+## Block Production Metrics (Empty Slots and Orphaned Blocks)
 Apart from validators' performance on their attestation duties, we can also look at how validators perform as block producers. According to the eth2 spec, one validator is selected to produce a block at each slot. However for various reasons the validator might fail to do so, or might produce a block that is invalid.
 
-Another possibility is that the assigned validator does produce a block, but it does no propagate to the rest of the network quickly enough to be included in the canonical chain. This block is then descrined as "orphaned" or perhaps more accurately "sterile", since its line of . Equivalently, the block is *non-canonical*, as it did not become part of the finalised chain.
+Another possibility is that the assigned validator does produce a block, but it does no propagate to the rest of the network quickly enough to be included in the canonical chain. This block is then descrined as "orphaned". Equivalently, the block is *non-canonical*, as it did not become part of the finalised chain.
 
-The set of orphaned blocks is generally subjective — in theory there might be a lost block for every empty slot. In practice there will be slots for which no block was ever produced (for example because the validator assigned to produce it was unresponseive). The lost blocks included the `chaind` database are those which were available to the beacon node which collected them. Different nodes in different parts of the network may have been able to collect other lost blocks which ultimately were not propagated throughout the whole network.
+The set of orphaned blocks is generally subjective — in theory there might be an orphaned block for every empty slot. In practice there will be slots for which no block was ever produced (for example because the validator assigned to produce it was unresponseive). The orphaned blocks included the `chaind` database are those which were available to the beacon node which collected them. Different nodes in different parts of the network may have been able to collect other orphaned blocks which ultimately were not propagated throughout the whole network.
 
-Nonetheless, counts of empty slots
+Nonetheless, counts of both empty slots and orphaned blocks can serve as another metric for network health. Since a maximum of only 32 blocks is produced each epoch, these metrics are much coarser than the attestation metrics we considered above (by contrast thousands of attestations may be produced each epoch).
 
-<details><summary><code>input 10</code></summary>
+For empty slots, we can use look at the attestation duties to determine which validator had been assigned to produce a block. As with the previous metrics, we can then exclude unresponsive validators to see if this gives us a clearer picture.
+
+<details><summary><code>input 9</code></summary>
 
 ```python
 # count orphaned blocks
@@ -308,7 +312,7 @@ output:
     Dataset encompases 487601 slots of which 137745 (28.2%) were empty
 ```
 
-<details><summary><code>input 11</code></summary>
+<details><summary><code>input 10</code></summary>
 
 ```python
 # plot empty slots and orphaned blocks by epoch
@@ -392,8 +396,9 @@ plt.show()
 ![png](/assets/images/medalla-3-network-stress_files/medalla-3-network-stress_17_2.png)
 
 ## Slashing Events
+The final indicator we will consider in this article is the occurence of slashing events. 
 
-<details><summary><code>input 12</code></summary>
+<details><summary><code>input 11</code></summary>
 
 ```python
 # count up slashing events, plot per epoch

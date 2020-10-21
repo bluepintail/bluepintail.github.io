@@ -40,7 +40,7 @@ The [third article](/posts/medalla-network-stress) explores a range of metrics w
 
 It's immediately clear when you look at the available data for different clients, that they haven't all been performing the same. Interestingly the three best-performing clients showed strengths in different areas, although one client didn't seem to reach its stride during the period examined ([read the article to find out which one!](/posts/medalla-client-comparison)). You can draw your own conclusions from the graph below...
 
-**Caveat:** This analysis relied on identifying clients *block graffiti* which is manually set by users who could easily choose to mislead.
+**Caveat:** This analysis relied on identifying clients from *block graffiti* which is manually set by users who could easily choose to mislead.
 
 ![png](/assets/images/medalla-4-client-comparison_files/medalla-4-client-comparison_16_0.png)
 

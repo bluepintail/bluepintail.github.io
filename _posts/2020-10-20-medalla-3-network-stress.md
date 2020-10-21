@@ -14,7 +14,7 @@ But of course, Medalla is a testnet — exposing and fixing such potential weakn
 
 We've already seen from the impact on the participation rate one of the ways in which network stress can manifest itself. In this article, we will look at a series of other metrics which may contain valuable information about network performance, providing cues about bugs or other problems. Once again, we start by getting some useful data from `chaind`:
 
-<details><summary><code>input 1</code></summary>
+<details><summary><code>input 1 [click to view code]</code></summary>
 
 ```python
 # imports
@@ -29,7 +29,7 @@ from IPython.display import display, clear_output
 
 </details>
 
-<details><summary><code>input 2</code></summary>
+<details><summary><code>input 2 [click to view code]</code></summary>
 
 ```python
 # open/restart connection to chaind database
@@ -45,7 +45,7 @@ cursor = connection.cursor()
 
 </details>
 
-<details><summary><code>input 3</code></summary>
+<details><summary><code>input 3 [click to view code]</code></summary>
 
 ```python
 # get info about dataset and validators
@@ -80,7 +80,7 @@ The other metrics we calculate are:
 
 We will define each of these metrics as we plot them in the below charts.
 
-<details><summary><code>input 4</code></summary>
+<details><summary><code>input 4 [click to view code]</code></summary>
 
 ```python
 # calculate mean inclusion distance, mean attestation effectiveness, attestation accuracy metrics
@@ -160,7 +160,7 @@ output:
 ## Participation Rate
 We looked at the participation rate in the [previous article](/posts/medalla-validator-taxonomy). It's plotted again below, both with and without unresponsive validators, this time as a line graph for easier comparison with the other metrics.
 
-<details><summary><code>input 5</code></summary>
+<details><summary><code>input 5 [click to view code]</code></summary>
 
 ```python
 # plot participation rate
@@ -191,7 +191,7 @@ One advantage of this measure is that it is not directly affected by the presenc
 
 Unsurprisingly, the mean inclusion distance jumps significantly around the roughtime incident. But interestingly there are a number of smaller spikes, some (but not all) of which match downward spikes in the participation rate.
 
-<details><summary><code>input 6</code></summary>
+<details><summary><code>input 6 [click to view code]</code></summary>
 
 ```python
 # graphs and stats for mean inclusion distance
@@ -219,7 +219,7 @@ $$ E_a = \frac{S_n-S_a}{S_i-S_a} $$
 
 Where $S_n$ is then next slot containing a block, $S_a$ is the slot number being attested to, and $S_i$ is the slot at which the attestation was actually included. In the best case, the attestation is included at the next possible slot, i.e. $S_i=S_n$ and the attestation effectiveness $E_a=1$. If no attestation is included then $E_a=0$. In effect then, inclusion delay is measured from the next slot containing a canonical block, since empty slots will cause attestations to be delayed through no fault of the validator.
 
-<details><summary><code>input 7</code></summary>
+<details><summary><code>input 7 [click to view code]</code></summary>
 
 ```python
 # plot attestation effectiveness
@@ -255,7 +255,7 @@ So for example if a validator votes for a block in slot $S_a-1$, having not rece
 
 As in the case of mean inclusion distance, we are concerned only with attestations which were included in the canonical chain, so there is no difference from excluding unresponsive validators.
 
-<details><summary><code>input 8</code></summary>
+<details><summary><code>input 8 [click to view code]</code></summary>
 
 ```python
 # plot accuracy rate by epoch
@@ -287,7 +287,7 @@ Nonetheless, counts of both empty slots and orphaned blocks can serve as another
 
 For empty slots, we can use look at the attestation duties to determine which validator had been assigned to produce a block. As with the previous metrics, we can then exclude unresponsive validators to see if this gives us a clearer picture.
 
-<details><summary><code>input 9</code></summary>
+<details><summary><code>input 9 [click to view code]</code></summary>
 
 ```python
 # count orphaned blocks
@@ -312,7 +312,7 @@ output:
     Dataset encompases 487601 slots of which 137745 (28.2%) were empty
 ```
 
-<details><summary><code>input 25</code></summary>
+<details><summary><code>input 10 [click to view code]</code></summary>
 
 ```python
 # plot empty slots and orphaned blocks by epoch
@@ -398,7 +398,7 @@ plt.show()
 ## Slashing Events
 The final indicator we will consider in this article is the occurence of slashing events. Slashing occurs when a validator provably misbehaves, for example by attesting to two different blocks in the same slot. Slashing results in the offending validator losing a significant proportion of its stake and then being immediately ejected from the set. The number of slashing events occuring in each epoch is plotted below.
 
-<details><summary><code>input 15</code></summary>
+<details><summary><code>input 11 [click to view code]</code></summary>
 
 ```python
 # count up slashing events, plot per epoch
@@ -430,7 +430,7 @@ In this plot we see the increased frequency of slashing events which occurred du
 ## Baselining
 We can use the metrics identified to highlight other periods of network stress which may warrant closer attention. One way of doing this is to baseline the metrics on a period believed to represent a healthy network, and then identify excursions a significant distance from this baseline. Since the "reduced" versions of the metrics above (i.e. those which exclude unresponsive validators) appear to maintain a more consistent baseline, we will stick to those versions in this section. For our baseline, we calculate the mean and standard deviation for each metric over the period from epoch 6000 to epoch 9000. We then plot the normalised metrics below.
 
-<details><summary><code>input 67</code></summary>
+<details><summary><code>input 12 [click to view code]</code></summary>
 
 ```python
 # get baselean mean and standard deviations for each metric
@@ -481,7 +481,7 @@ Once again, the roughtime incident dominates the plot, but a number of other spi
 
 They are plotted on their own below for greater clarity.
 
-<details><summary><code>input 66</code></summary>
+<details><summary><code>input 13 [click to view code]</code></summary>
 
 ```python
 # plot normalised metrics
@@ -505,7 +505,7 @@ Having chosen our metrics for identifying anomalies we can now run a very simple
 
 Results are shown in the table below, which appears to show that attestation effectiveness is a more sensitive metric. However, for one of the anomalies (epoch 4805), the attestation accuracy deviated almost as far.
 
-<details><summary><code>input 63</code></summary>
+<details><summary><code>input 14 [click to view code]</code></summary>
 
 ```python
 # basic anomaly detection over attestation effectiveness and accuracy

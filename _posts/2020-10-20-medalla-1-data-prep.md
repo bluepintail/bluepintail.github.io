@@ -18,7 +18,7 @@ Special thanks also to Ben Edgington ([@benjaminion_xyz](https://twitter.com/ben
 ## Setup
 First up, we import the Python libraries to be used in this analysis, connect to the `chaind` database and pull out some basic information about the data we have saved there:
 
-<details><summary><code>input 1</code></summary>
+<details><summary><code>input 1 [click to view code]</code></summary>
 
 ```python
 # imports
@@ -31,7 +31,7 @@ from IPython.display import clear_output
 
 </details>
 
-<details><summary><code>input 2</code></summary>
+<details><summary><code>input 2 [click to view code]</code></summary>
 
 ```python
 # open/restart connection to chaind database
@@ -47,7 +47,7 @@ cursor = connection.cursor()
 
 </details>
 
-<details><summary><code>input 3</code></summary>
+<details><summary><code>input 3 [click to view code]</code></summary>
 
 ```python
 # basic info about the dataset
@@ -78,7 +78,7 @@ We then add a new table, `t_validator_performance`, which we will populate later
 
 Finally we modify the `t_validators` table, adding some more columns we will populate with information about when they started and finished attesting, and how many blocks they succesfully proposed.
 
-<details><summary><code>input 4</code></summary>
+<details><summary><code>input 4 [click to view code]</code></summary>
 
 ```python
 # database modifications required for this analysis
@@ -133,7 +133,7 @@ One of the properties of eth2's [Casper FFG](https://arxiv.org/pdf/1710.09437.pd
 
 Also as in other blockchains, each block contains a hash of a *parent* — that is, a block at an earlier time identified as the previous block in the chain. Identiyfing all blocks in the canonical chain is therefore simply a matter of taking a recently-finalised block and tracking back through the chain via each block's parents. Helpfully, the most recent block in the `chaind` database used in this analysis *was* finalised, according to [beaconcha.in](https://beaconcha.in), so we will start tracking back from there. Any block not lying on this chain will be considered to be an orphan.
 
-<details><summary><code>input 5</code></summary>
+<details><summary><code>input 5 [click to view code]</code></summary>
 
 ```python
 # identify canonical blocks
@@ -189,7 +189,7 @@ output:
     database contains 358,048 blocks of which 349,856 are canonical (2.3% orphan blocks)
 ```
 
-<details><summary><code>input None</code></summary>
+<details><summary><code>[click to view code]</code></summary>
 
 ```python
 # (this code is an optimisation for the calculations below but has not been used)
@@ -214,7 +214,7 @@ for i, h in enumerate(head):
 
 </details>
 
-<details><summary><code>input 6</code></summary>
+<details><summary><code>input 6 [click to view code]</code></summary>
 
 ```python
 # check proportion of attestations from canoncial blocks broadly matches block orphan ratio
@@ -244,7 +244,7 @@ Ultimately different versions of aggregated attestations end up being included i
 
 The below cell calculates the *first inclusion distance* for each active validator, at each epoch. If the validator does not have an attestation included at all, the attestation is said to be *missed*, denoted by an inclusion distance of -1. We also calculate the [attestation effectiveness](https://www.attestant.io/posts/defining-attestation-effectiveness/) for each validator, as the inverse of the *adjusted inclusion distance*. Finally, we record whether each validator attested *correctly* — that is, did the block it voted for end up being finalised?
 
-<details><summary><code>input 7</code></summary>
+<details><summary><code>input 7 [click to view code]</code></summary>
 
 ```python
 # decode attestations, calculate performance, identify first/latest attestation for each validator
@@ -368,7 +368,7 @@ For the purposes of this analysis, we will assume that any validator which consi
 
 The cell below iterates through all canonical blocks in the dataset and where available, uses the `graffiti` field to guess which client produced the blocks. If information from different blocks suggests different clients were used, the validator is marked as *ambiguous*. We also count up the total number of blocks proposed by each validator.
 
-<details><summary><code>input 8</code></summary>
+<details><summary><code>input 8 [click to view code]</code></summary>
 
 ```python
 # determine validator clients from block graffiti, count proposed blocks per validator

@@ -20,7 +20,7 @@ However, in the Medalla network there is no real value is at stake. This leads t
 
 Moreover, users who run into difficulty in using client software or simply lose interest in the project are likely simply to "walk away" from the network rather than using the *voluntary exit* procedure defined in the spec. But before getting into that, let's first take a look at how the make-up of the validator set varies over the course of the dataset. As before, we start by getting pulling out some of the data we need from `chaind`:
 
-<details><summary><code>input 1</code></summary>
+<details><summary><code>input 1 [click to view code]</code></summary>
 
 ```python
 # imports
@@ -35,7 +35,7 @@ from IPython.display import display, clear_output
 
 </details>
 
-<details><summary><code>input 2</code></summary>
+<details><summary><code>input 2 [click to view code]</code></summary>
 
 ```python
 # open/restart connection to chaind database
@@ -51,7 +51,7 @@ cursor = connection.cursor()
 
 </details>
 
-<details><summary><code>input 3</code></summary>
+<details><summary><code>input 3 [click to view code]</code></summary>
 
 ```python
 # get info about dataset and validators
@@ -89,7 +89,7 @@ At each epoch therefore we can categorise validators into four types:
 
 Validators who have exited or been slashed cannot rejoin the activation queue or start attesting again (although in future they will be able to withdraw previously staked ether to create a new valdator, if they choose).
 
-<details><summary><code>input 4</code></summary>
+<details><summary><code>input 4 [click to view code]</code></summary>
 
 ```python
 # get validator status by epoch - waiting, active, exited, slashed
@@ -136,7 +136,7 @@ The chart below shows the evolution of each of these categories of validator. We
 
 The exception is a short period around epoch 3000 when a number of validators were slashed, the validator queue (represented in orange) was emptied and the active set stopped growing. This was due to the [roughtime incident](https://medium.com/prysmatic-labs/eth2-medalla-testnet-incident-f7fbc3cc934a), which will be explored in more detail in the next notebook. A small sliver of non-slashed exited validators also grows gradually throughout the dataset, most like due to users testing the *voluntary exit* procedure.
 
-<details><summary><code>input 5</code></summary>
+<details><summary><code>input 5 [click to view code]</code></summary>
 
 ```python
 # draw validator status stacked area plot
@@ -165,7 +165,7 @@ Looking more widely at the effective balances of the validators, we find that am
 
 Given the very limited variation in effective balance amongst active validators in this dataset, we will weight validators equally in the remaining analysis. This will simplify the analysis at the cost of slight errors in calculations of participation rates.
 
-<details><summary><code>input 6</code></summary>
+<details><summary><code>input 6 [click to view code]</code></summary>
 
 ```python
 # show effective balances
@@ -225,7 +225,7 @@ As stated above these categories are all just guesses, based on each validator's
 
 This is not meant pejoratively! My own validator would show up as *dormant* for a few epochs, since I hadn't factored in the time needed to compile and run the Lighthouse beacon chain client before Medalla's genesis time (**blushes**). Rather it is an illustration of the difficulty inherent in trying to test an economically driven consensus/finality mechanism without economic incentives. The code below totals up each of these categories of validator on a per-epoch basis:
 
-<details><summary><code>input 7</code></summary>
+<details><summary><code>input 7 [click to view code]</code></summary>
 
 ```python
 # count and categorise attestations
@@ -297,7 +297,7 @@ The slice of abandoned validators (red) grows gradually throughout the dataset, 
 
 Indeed, [evidence from forums](https://www.reddit.com/r/ethstaker/comments/jdkgo7/are_we_still_trying_to_run_medalla/?utm_source=share&utm_medium=web2x&context=3) suggests that some users are unaware of how or why to use the protocol voluntary exit procedure. This effect is therefore probably part of the cause for the Medalla participation rate dropping [to very low levels](https://hackmd.io/@benjaminion/wnie2_201018#Testnets) in recent days.
 
-<details><summary><code>input 8</code></summary>
+<details><summary><code>input 8 [click to view code]</code></summary>
 
 ```python
 # participation rate stacked area plots
@@ -337,7 +337,7 @@ At an ETH price of USD 375, each validator will require USD 12,000 to be locked 
 
 The graphs created above have been repeated, but this time only `success_count` and `missed_count` are used in the calculation of the participation rate. Now the mean participation rate jumps by 10-13 percentage points, reaching  89% with zero sub-⅔ particpation epochs from 5000 onwards.
 
-<details><summary><code>input 9</code></summary>
+<details><summary><code>input 9 [click to view code]</code></summary>
 
 ```python
 # participation rate statistics and stacked area plots (excluding unresponsive validators)
@@ -370,7 +370,7 @@ In the statistics and plots below we find that over 90% of epochs were above ⅔
 
 From epoch 5000 onwards, we find that 99.8% of epochs reached the ⅔ quorum. If we exclude unresponsive validators, this reaches 100%.
 
-<details><summary><code>input 10</code></summary>
+<details><summary><code>input 10 [click to view code]</code></summary>
 
 ```python
 # participation rate statistics - include/exclude roughtime, non-live validators
@@ -483,7 +483,7 @@ This was a pattern that was repeated for the "genesis rehearsal" *Spadina* testn
 
 On the positive side, the actual penalties for non-participating validators (known as inactivity leak) are not severe, as long as the period of non-finality is reasonably short. A repeat of Medalla's ~1 hour wait for finality would not be a serious problem.
 
-<details><summary><code>input 11</code></summary>
+<details><summary><code>input 11 [click to view code]</code></summary>
 
 ```python
 # draw stacked plot for the first 100 epochs - but excluding absent validators
@@ -599,7 +599,7 @@ By comparison, looking at validators who activated from epoch 5000, over 80% suc
 
 This difference could be due to the fact that some later-joining validators on becoming aware that they might have to wait in a validation queue for several days may not have bothered to sync their nodes until they were already at the front of the queue (at a less certain time in the future), as compared with the genesis set who were working to a widely publicised gensis time.
 
-<details><summary><code>input 12</code></summary>
+<details><summary><code>input 12 [click to view code]</code></summary>
 
 ```python
 # calculate and plot first attestation delay

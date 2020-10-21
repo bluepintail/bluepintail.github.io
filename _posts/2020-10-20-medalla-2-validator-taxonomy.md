@@ -488,12 +488,6 @@ On the positive side, the actual penalties for non-participating validators (kno
 ```python
 # draw stacked plot for the first 100 epochs - but excluding absent validators
 
-# what is the distribution of gap between validator activation and the first successful attestation?
-# - for the genesis set, non-genesis validators, all validators?
-# what proportion of all active validators have never had an attestation included?
-# what does the participation rate look like if we exclude dormant, abandoned validators?
-# what is the proportion of epochs with sub 2/3 
-
 participation_data = pd.DataFrame({'successful': success_count,
                                    'missed'    : missed_count,
                                    'dormant'   : dormant_count,
@@ -597,7 +591,7 @@ display(comp.reset_index().head(10).style
 </table>
 
 ## Activation delays
-An interesting question arises from the delay in reaching quorum after genesis — do new validators always struggle to join the network, or is this an issue which occurred at genesis and was less important once the network was established? We can look at this by counting how *late* each validator is with its first attestation. Genesis validators are expected to attest in epoch 0, while later validators should first attest during their `attestation_epoch`.
+An interesting question arises from the delay in reaching quorum after genesis — do new validators always struggle to join the network, or is this an issue which occurred at genesis and was less important once the network was established? We can look at this by counting how *late* each validator is with its first attestation. Genesis validators are expected to attest in epoch 0, while later validators should first attest during their `activation_epoch`.
 
 As we saw above, from the genesis set, 60% of validators attested in the first epoch, and the pattern after that is messy, with larger groups of validators not attesting until epochs 5-6, and then epoch 14. This may reflect less-stable network conditions during the genesis period as many new nodes attempted to sync.
 

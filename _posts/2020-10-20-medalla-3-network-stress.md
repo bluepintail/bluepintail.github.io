@@ -6,7 +6,7 @@ permalink: "/posts/medalla-network-stress/"
 One of the most obvious features of the data presented in the [previous article](/posts/medalla-validator-taxonomy) was the crash in participation rate which occurred at the time of the [roughtime incident](https://medium.com/prysmatic-labs/eth2-medalla-testnet-incident-f7fbc3cc934a). A number of important lessons were identified from this incident, such as:
 - the importance of client diversity;
 - the perils of depending on centralised service providers for consensus-critical information;
-- the value of easy and seemless switching between clients for validators;
+- the value of easy and seamless switching between clients for validators;
 - the importance of rigorous release testing, even (especially) during a crisis;
 - \[and many others\].
 

@@ -17,7 +17,7 @@ This work comes with many caveats. Firstly, as already mentioned, this analysis 
 
 Nonetheless, there we may be able to make some useful obvservations based on the client-identifying data available to us. So one last time, let's get started with the Python imports and database connection:
 
-<details><summary><code>input 1 [click to view code]</code></summary>
+<details><summary><code>input 1</code></summary>
 
 ```python
 # imports
@@ -32,7 +32,7 @@ from IPython.display import display, clear_output
 
 </details>
 
-<details><summary><code>input 2 [click to view code]</code></summary>
+<details><summary><code>input 2</code></summary>
 
 ```python
 # open/restart connection to chaind database
@@ -48,7 +48,7 @@ cursor = connection.cursor()
 
 </details>
 
-<details><summary><code>input 3 [click to view code]</code></summary>
+<details><summary><code>input 3</code></summary>
 
 ```python
 # get info about dataset and validators
@@ -77,7 +77,7 @@ validators = [{"activation_eligibility_epoch": r[0],
 ## Client proportions
 Summarising the distribution of clients inferred from block graffiti, we found that the majority of validators (72%) did not provide information in block graffiti which could be used to identify the client used. This includes all validators which did not propose any blocks, since graffiti is only supplied by the block producer. For this reason, validators who were *absent* or those which did not participate long enough to propose any blocks, are excluded.
 
-<details><summary><code>input 4 [click to view code]</code></summary>
+<details><summary><code>input 4</code></summary>
 
 ```python
 # plot validator counts
@@ -131,7 +131,7 @@ The 28% of validators did include identifying information in graffiti will be th
 
 With that done, we find that Prysm nodes made up almost half of the validators, Lighthouse a third, and the remainining ⅙ were split almost evenly between Nimbus and Teku. The number of Lodestar clients is so small that these will also be excluded from the following analysis. These numbers seem believable based on anecdotal reports of clients being used — certainly the ranking seems likely — but ultimately we have no way of checking them.
 
-<details><summary><code>input 5 [click to view code]</code></summary>
+<details><summary><code>input 5</code></summary>
 
 ```python
 # plot validator client share
@@ -182,7 +182,7 @@ output:
 ## Variation in Client Share
 By counting up how many validators of each client type were  *active* at each epoch, we can also look at how this share has varied over time.
 
-<details><summary><code>input 6 [click to view code]</code></summary>
+<details><summary><code>input 6</code></summary>
 
 ```python
 # get validator status by epoch - waiting, active, exited, slashed
@@ -236,7 +236,7 @@ output:
 
 As shown in the stacked plot below, each client's share of the network seems to have been fairly consistent.
 
-<details><summary><code>input 7 [click to view code]</code></summary>
+<details><summary><code>input 7</code></summary>
 
 ```python
 # plot each client's share of active validators by epoch
@@ -269,7 +269,7 @@ As in our article on [validator taxonomy](/posts/medalla-validator-taxonomy), it
 
 The code below aggregates validator performace accross each epoch, as before, but now subdivided by client:
 
-<details><summary><code>input 8 [click to view code]</code></summary>
+<details><summary><code>input 8</code></summary>
 
 ```python
 # calculate participation rates, mean inclusion distance and attestation effectiveness for each client
@@ -366,7 +366,7 @@ output:
 
 Having calcualted validator performance by client, we plot a set of stacked charts below. These seem to indicate some strong differences in behaviour between the clients. Prysm seems to have the highest participation rate, but with  periods where perhaps 20% of their nodes drop offline for 10s of epochs. Lighthouse starts of with quite poor participation, but seems to have the lowest proportion of missed (orange) attesatations from epoch 12000 onwards. Meanwhile Teku shows fairly consistent performance throughout. Nimbus nodes appear to have struggled to attest consistently throughout.
 
-<details><summary><code>input 9 [click to view code]</code></summary>
+<details><summary><code>input 9</code></summary>
 
 ```python
 # four stacked plots showing successful/missed/absent/dormant/abandoned for each client
@@ -411,7 +411,7 @@ As before let's now compare the clients on their attestation effectiveness. To s
 
 As shown by the statics, Nimbus falls significantly behind the other two clients with a mean attesatation effectiveness more than 30 percentage points behind the next client. Prysm, Lighthouse and Teku are much closer together, but all clients seem to have "choppy" attestation effectiveness, mirroring what we saw in the stacked participation charts. This may be indicative of clusters of nodes dropping out at intervals.
 
-<details><summary><code>input 10 [click to view code]</code></summary>
+<details><summary><code>input 10</code></summary>
 
 ```python
 # graphs and stats for attestation effectiveness
@@ -459,7 +459,7 @@ Now let's consider the other key metric identified in the [network stress](/post
 
 On this metric, Teku seems to come out consistently on top, while Prysm seems to have a significant drop in attestation accuracy between epochs 12000 and 14000.
 
-<details><summary><code>input 11 [click to view code]</code></summary>
+<details><summary><code>input 11</code></summary>
 
 ```python
 # graphs and stats for attestation accuracy
@@ -505,9 +505,9 @@ output:
 ## Client Block/Slash Rates
 Finally, we'll look at how the clients compared in terms of the number of canonical blocks they produced. To try to make it a fair comparison, we'll count up the number of blocks produced by each client, and the number of validators from each client which were slashed. We'll then find the rate per million *validator-epochs*, where a validator-epoch is one validator in an *active* state for one epoch. We'll also look at the *reduced* versions of these statistics, which exclude unresponive (dormant/abandoned) validators.
 
-The stats are shown in the table below, and suggest that Prysm and Lighthouse had a significantly better rate of block production than Teku and Nimbus. Nimbus had the highest slash rate (that is, Nimbus clients had the greatest rate of *being* slashed), followed by Prysm. It seems likely that the relatively high Prysm slash-rate is a result a relatively large number of Prysm nodes being slashed during the roughtime incident.
+The stats are shown in the table below, and show that Teku and Prysm had the best rates of block production, followed by Lighthouse. Nimbus had little over haff  that Prysm and Lighthouse had a significantly better rate of block production than Teku and Nimbus. Nimbus had the highest slash rate (that is, Nimbus clients had the greatest rate of *being* slashed), followed by Prysm. It seems likely that the relatively high Prysm slash-rate is a result a relatively large number of Prysm nodes being slashed during the roughtime incident.
 
-<details><summary><code>input 12 [click to view code]</code></summary>
+<details><summary><code>input 13</code></summary>
 
 ```python
 # count up blocks produced and slashing events, per client
@@ -518,7 +518,7 @@ for v in validators:
     client = v['client']
     if client not in clients:
         continue
-    proposed[client] += 1
+    proposed[client] += v['proposed_count']
 
 # slashing events
 slashed = {client: 0 for client in clients}
@@ -562,10 +562,10 @@ output:
     
     client     block rate (reduced) slash rate (reduced)
     ----------------------------------------------------
-    prysm          88.62     95.03      2.15      2.31
-    lighthouse     88.22     99.27      0.45      0.51
-    teku           74.69     79.44      0.16      0.17
-    nimbus         73.37     78.88      3.23      3.47
+    prysm         591.37    634.19      2.15      2.31
+    lighthouse    516.66    581.36      0.45      0.51
+    teku          618.05    657.33      0.16      0.17
+    nimbus        332.35    357.32      3.23      3.47
 ```
 
 ## Conclusions

@@ -14,9 +14,9 @@ But if that's a bit too much, then I don't blame you. This short post will pull 
 
 # 1. An Unincentivised Testnet Has Its Limitations
 
-It was clear from very early on was that trying to run a Proof-of-Stake network without any real *value* at stake was going to throw up some issues. In Medalla this has manifested itself in sometimes anemic participation. This has become painfuly obvious in recent days as the participation rate dropped below the ⅔ level needed for finality as many validators began to throw in the towel.
+It was clear from very early on was that trying to run a Proof-of-Stake network without any real *value* at stake was going to throw up some issues. In Medalla this has manifested itself in sometimes anemic participation. This has become painfully obvious in recent days as the participation rate dropped below the ⅔ level needed for finality as many validators began to throw in the towel.
 
-But even before this point we could see the effects of validators failing to show up for duty. One contribution of the data analysis of this project is to identify which users are not treating the testnet as though validator rewards and penalites carried real value. We can even assign them names (*absent*, *dormant* and *abandoned* validators — or taken altogether: *unresponsive* validators).
+But even before this point we could see the effects of validators failing to show up for duty. One contribution of the data analysis of this project is to identify which users are not treating the testnet as though validator rewards and penalties carried real value. We can even assign them names (*absent*, *dormant* and *abandoned* validators — or taken altogether: *unresponsive* validators).
 
 As this graph shows, many validators never submitted a single attestation (purple) whilst others walked away from the network without initiating a proper *voluntary exit* (red). Still others took a long time to submit their first attestation even after they had been activated by the network (green). It's likely that this sort of behaviour would not occur in a properly incentivised testnet. But then, as has been pointed out, an incentivised testnet...[would be mainnet](https://twitter.com/benjaminion_xyz/status/1318521118752464896).
 

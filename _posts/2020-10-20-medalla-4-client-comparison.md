@@ -507,7 +507,7 @@ Finally, we'll look at how the clients compared in terms of the number of canoni
 
 The stats are shown in the table below, and show that Teku and Prysm had the best rates of block production, followed by Lighthouse. Nimbus fall significantly short of the other clients, successfully proposing for only 46% of their proposal duties, even when unresponsive validators are excluded. Nimbus also had the highest slash rate (that is, Nimbus clients had the greatest rate of *being* slashed), followed by Prysm. It seems likely that the relatively high Prysm slash-rate is a result a relatively large number of Prysm nodes being slashed during the roughtime incident.
 
-<details><summary><code>input 12 [click to view code]</code></summary>
+<details><summary><code>input 17 [click to view code]</code></summary>
 
 ```python
 # count up blocks produced and slashing events, per client
@@ -531,9 +531,8 @@ for r in result:
 proposed = {client:0 for client in clients}
 for val_index, v in enumerate(validators):
     client = v['client']
-    if client not in clients:
-        continue
-    proposed[client] += v['proposed_count']
+    if client in clients:
+        proposed[client] += v['proposed_count']
     
 # slashing events
 slashed = {client: 0 for client in clients}
@@ -551,10 +550,6 @@ for client in clients:
     for epoch in range(n_epochs):
         valepoch_active[client] += active_count[client][epoch]
         valepoch_unresponsive[client] += unresponsive_count[client][epoch]
-
-#block_rate         = {client: 10**6 * proposed[client] / valepoch_active[client] for client in clients}
-#block_rate_reduced = {client: 10**6 * proposed[client] / (valepoch_active[client] - valepoch_unresponsive[client])
-#                      for client in clients}
 
 block_rate         = {client: 100 * proposed[client] / duties[client] for client in clients}
 block_rate_reduced = {client: 100 * proposed[client] / duties_reduced[client] for client in clients}

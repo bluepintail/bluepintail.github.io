@@ -312,7 +312,7 @@ output:
     Dataset encompases 487601 slots of which 137745 (28.2%) were empty
 ```
 
-<details><summary><code>input 10 [click to view code]</code></summary>
+<details><summary><code>input 25 [click to view code]</code></summary>
 
 ```python
 # plot empty slots and orphaned blocks by epoch
@@ -398,7 +398,7 @@ plt.show()
 ## Slashing Events
 The final indicator we will consider in this article is the occurence of slashing events. Slashing occurs when a validator provably misbehaves, for example by attesting to two different blocks in the same slot. Slashing results in the offending validator losing a significant proportion of its stake and then being immediately ejected from the set. The number of slashing events occuring in each epoch is plotted below.
 
-<details><summary><code>input 11 [click to view code]</code></summary>
+<details><summary><code>input 15 [click to view code]</code></summary>
 
 ```python
 # count up slashing events, plot per epoch
@@ -430,7 +430,7 @@ In this plot we see the increased frequency of slashing events which occurred du
 ## Baselining
 We can use the metrics identified to highlight other periods of network stress which may warrant closer attention. One way of doing this is to baseline the metrics on a period believed to represent a healthy network, and then identify excursions a significant distance from this baseline. Since the "reduced" versions of the metrics above (i.e. those which exclude unresponsive validators) appear to maintain a more consistent baseline, we will stick to those versions in this section. For our baseline, we calculate the mean and standard deviation for each metric over the period from epoch 6000 to epoch 9000. We then plot the normalised metrics below.
 
-<details><summary><code>input 12 [click to view code]</code></summary>
+<details><summary><code>input 67 [click to view code]</code></summary>
 
 ```python
 # get baselean mean and standard deviations for each metric
@@ -481,7 +481,7 @@ Once again, the roughtime incident dominates the plot, but a number of other spi
 
 They are plotted on their own below for greater clarity.
 
-<details><summary><code>input 13 [click to view code]</code></summary>
+<details><summary><code>input 66 [click to view code]</code></summary>
 
 ```python
 # plot normalised metrics
@@ -505,7 +505,7 @@ Having chosen our metrics for identifying anomalies we can now run a very simple
 
 Results are shown in the table below, which appears to show that attestation effectiveness is a more sensitive metric. However, for one of the anomalies (epoch 4805), the attestation accuracy deviated almost as far.
 
-<details><summary><code>input 14 [click to view code]</code></summary>
+<details><summary><code>input 63 [click to view code]</code></summary>
 
 ```python
 # basic anomaly detection over attestation effectiveness and accuracy

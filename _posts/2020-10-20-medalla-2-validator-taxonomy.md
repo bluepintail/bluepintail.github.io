@@ -587,7 +587,7 @@ display(comp.reset_index().head(10).style
                         <td id="T_07f7566e_12d3_11eb_b89d_23b5274849f9row9_col2" class="data row9 col2" >73.5</td>
             </tr>
     </tbody>
-
+    
 </table>
 
 ## Activation delays
@@ -699,4 +699,4 @@ With this in mind, this analysis seems to show that beacon chain protocol and th
 
 Still, the genesis period remains a period of greater risk, and every effort should be made to ensure the genesis validators are ready before proceeding. For example, last-minute client releases should be considered as potential grounds for "stopping the timer" on genesis delay. To prevent this from being necessary, all clients should ensure they have their mainnet configurations released before the deposit contract goes live, and should avoid new releases in between deposit contract launch and genesis unless critical.
 
-Overall, this data is encouraging from the perspective of demonstrating the feasability of a beacon chain under mainnet-like loads, at least in terms of numbers of validators, can run smoothly. However, it's important to remember that the beacon chain in its initial form does not support any data or execution shards, which will add additional load to the protocol in future. 
+Overall, this data is encouraging from the perspective of demonstrating the feasibility of a beacon chain under mainnet-like loads, at least in terms of numbers of validators, can run smoothly. However, it's important to remember that the beacon chain in its initial form does not support any data or execution shards, which will add additional load to the protocol in future. 

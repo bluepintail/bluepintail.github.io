@@ -1,0 +1,42 @@
+---
+---
+
+<!doctype html>
+<html lang="{{ site.locale | slice: 0,2 | default: "en" }}">
+<head>
+    {% include head.html %}
+    {% include head/custom.html %}
+	<script src="/assets/js/plotly-latest.min.js"></script>
+	<script src="/assets/js/jquery.min.js"></script>
+	<meta charset="utf-8">
+	<!-- <link rel="stylesheet" href="stylesheet.css">
+	<title>ERC20 Chart</title> -->
+</head>
+
+<body>
+
+    {% include_cached skip-links.html %}
+    {% include_cached browser-upgrade.html %}
+    {% include_cached masthead.html %}
+
+    <div class="initial-content">
+      {{ content }}
+    </div>
+
+    {% if site.search == true %}
+      <div class="search-content">
+        {% include_cached search/search_form.html %}
+      </div>
+    {% endif %}
+
+    <div id="footer" class="page__footer">
+      <footer>
+        {% include footer/custom.html %}
+        {% include_cached footer.html %}
+      </footer>
+    </div>
+
+    {% include scripts.html %}
+
+</body>
+</html>

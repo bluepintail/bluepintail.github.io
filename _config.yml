@@ -180,8 +180,11 @@ markdown_ext: "markdown,mkdown,mkdn,mkd,md"
 
 
 # Conversion
-# markdown: kramdown
+#markdown: kramdown
 markdown: CommonMarkGhPages
+commonmark:
+  options: ["SMART", "FOOTNOTES"]
+  extensions: ["strikethrough", "autolink", "table"]
 highlighter: rouge
 lsi: false
 excerpt_separator: "\n\n"

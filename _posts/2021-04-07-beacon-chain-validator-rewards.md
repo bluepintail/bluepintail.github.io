@@ -28,8 +28,8 @@ Which calculates the `base_reward` for each validator, measured in Gwei (=10<sup
 | ----- | ----- |
 | `effective_balance` | An integer number of ETH according to each validator's balance (measured in Gwei). It has a maximum value of 32 &times; 10<sup>9</sup>. |
 | `BASE_REWARD_FACTOR` | A constant value of 64 in the eth2 spec, it is the factor used to tune the overall issuance of ETH — some of the rationale for this value was given in the [pull request](https://github.com/ethereum/eth2.0-specs/pull/971) in which it was set. |
-| `total_balance` | The sum of the `effective_balance`s of all active validators. |
-| `BASE_REWARDS_PER_EPOCH` | This is a constant value of 4, corresponding to the 4 `base_reward`s which can be earned by each validator, each epoch. Once sharding arrives, validators will be able to earn more rewards for attesting to shard blocks, so this constant will be redefined with to match the number of rewards available, ensuring that the overall level of issuance does not increase. |
+| `total_balance` | The sum of `effective_balance` for all active validators. |
+| `BASE_REWARDS_PER_EPOCH` | This is a constant value of 4, corresponding to the 4 components of validator reward, each worth one `base_reward`, which can be earned by each validator, each epoch. |
 	
 For our ideal reward case, this all simplifies down, since *all* validators have an effective balance of 32 ETH. So the ideal base reward for `n` validators is:
 

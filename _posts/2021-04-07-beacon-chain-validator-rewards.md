@@ -2,6 +2,7 @@
 # front matter for Jekyll
 title: "Beacon Chain Validator Rewards"
 permalink: "/posts/beacon-chain-validator-rewards/"
+image: "/assets/images/beacon-chain-validator-rewards_files/cookie-the-pom-gySMaocSdqs-unsplash.jpg"
 ---
 
 # How Much Can I Earn?

@@ -6,6 +6,8 @@ permalink: "/posts/beacon-chain-validator-rewards/"
 
 # How Much Can I Earn?
 
+![jpg](/assets/images/beacon-chain-validator-rewards_files/cookie-the-pom-gySMaocSdqs-unsplash.jpg)
+
 The core of Ethereum's Proof of Stake consensus mechanism launched in December 2020, finally delivering the first phase of the transition away from Proof of Work — a vision set out [in 2014](https://blog.ethereum.org/2014/07/05/stake/), a full year before Ethereum's mainnet launch. In Ethereum's Proof of Stake, the blockchain is secured by *validators* who provide a security deposit of 32 ETH and are given the duty of coming to consensus on the state of a new blockchain called the *beacon chain*. They are incentivised to do this reliably with rewards for carrying out their duties, and penalties for failing to do this properly. There are also severe penalties (slashing) for validators who can be proven to have acted maliciously.
 
 These  validator rewards and penalties are a little more complex than the the block rewards familiar from Proof of Work blockchains. While some excellent resources such as [beaconcha.in](https://beaconcha.in) can help validators to understand *how much* they are earning, it may not be obvious *why*. This article will try and give validators a feeling for how much they can earn, and how this may vary.

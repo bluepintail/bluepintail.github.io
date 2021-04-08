@@ -2,14 +2,14 @@
 # front matter for Jekyll
 title: "Beacon Chain Validator Rewards"
 header:
-  og_image: cookie-the-pom-gySMaocSdqs-unsplash.jpg
+  og_image: /assets/images/beacon-chain-validator-rewards_files/cookie-the-pom-gySMaocSdqs-unsplash.jpg
 permalink: /posts/beacon-chain-validator-rewards/
 ---
 
 ![jpg](/assets/images/beacon-chain-validator-rewards_files/cookie-the-pom-gySMaocSdqs-unsplash.jpg)
 <sup>Photo by <a href="https://unsplash.com/@cookiethepom?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Cookie the Pom</a> on <a href="https://unsplash.com/s/photos/computer?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a></sup>
 
-# How Much Can I Earn? 1
+# How Much Can I Earn? 2
 
 The core of Ethereum's Proof of Stake consensus mechanism launched in December 2020, finally delivering the first phase of the transition away from Proof of Work — a vision set out [in 2014](https://blog.ethereum.org/2014/07/05/stake/), a full year before Ethereum's mainnet launch. In Ethereum's Proof of Stake, the blockchain is secured by *validators* who provide a security deposit of 32 ETH and are given the duty of coming to consensus on the state of a new blockchain called the *beacon chain*. They are incentivised to do this reliably with rewards for carrying out their duties, and penalties for failing to do this properly. There are also severe penalties (slashing) for validators who can be proven to have acted maliciously.
 

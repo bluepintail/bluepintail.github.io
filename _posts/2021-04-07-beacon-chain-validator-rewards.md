@@ -7,7 +7,6 @@ permalink: /posts/beacon-chain-validator-rewards/
 ---
 
 ![jpg](/assets/images/beacon-chain-validator-rewards_files/cookie-the-pom-gySMaocSdqs-unsplash.jpg)
-<sup>Photo by <a href="https://unsplash.com/@cookiethepom?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Cookie the Pom</a> on <a href="https://unsplash.com/s/photos/computer?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a></sup>
 
 # How Much Can I Earn?
 
@@ -499,4 +498,4 @@ Congratulations for making it to the end! Hopefully this article has helped expl
 One key takeaway from this modelling seems to be that although the available rewards vary significantly according to the number of active validators on the network, they are not dramatically affected by small amounts of down time. In fact we showed that in an idealised network, validators are profitable as long as they are online more than 43% of the time. We would not expect this minimum uptime figure to be significantly higher in the beacon chain that we observe today (which generally exhibits participation rates around the 99% level). If you're considering staking your own Ether at home, this should reassure you — even major internet or power outages should not significantly affect your profitability over the course of a year.
 
 # Acknowledgements
-This article was written as part of an [Ethereum Foundation Staking Community Grant](https://blog.ethereum.org/2021/02/09/esp-staking-community-grantee-announcement/). Many thanks to [Lakshman Sankar](https://twitter.com/lakshmansankar), [Barnabé Monnot](https://twitter.com/barnabemonnot) and [Jim McDonald](https://twitter.com/jgm) for suggestions and feedback.
+This article was written as part of an [Ethereum Foundation Staking Community Grant](https://blog.ethereum.org/2021/02/09/esp-staking-community-grantee-announcement/). Many thanks to [Lakshman Sankar](https://twitter.com/lakshmansankar), [Barnabé Monnot](https://twitter.com/barnabemonnot) and [Jim McDonald](https://twitter.com/jgm) for suggestions and feedback. Photo by <a href="https://unsplash.com/@cookiethepom?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Cookie the Pom</a> on <a href="https://unsplash.com/s/photos/computer?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>.

@@ -1,7 +1,8 @@
 ---
 # front matter for Jekyll
 title: "Beacon Chain Validator Rewards"
-og_image: /assets/images/beacon-chain-validator-rewards_files/cookie-the-pom-gySMaocSdqs-unsplash.jpg
+image:
+  feature: /assets/images/beacon-chain-validator-rewards_files/cookie-the-pom-gySMaocSdqs-unsplash.jpg
 permalink: /posts/beacon-chain-validator-rewards/
 ---
 

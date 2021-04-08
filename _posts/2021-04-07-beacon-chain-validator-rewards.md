@@ -3,6 +3,7 @@
 title: "Beacon Chain Validator Rewards"
 image:
   feature: /assets/images/beacon-chain-validator-rewards_files/cookie-the-pom-gySMaocSdqs-unsplash.jpg
+  thumb: /assets/images/beacon-chain-validator-rewards_files/cookie-the-pom-gySMaocSdqs-unsplash-thumb.jpg
 permalink: /posts/beacon-chain-validator-rewards/
 ---
 

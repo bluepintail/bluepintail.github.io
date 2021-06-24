@@ -115,7 +115,7 @@ output:
     upper-bound percentage of validators excluded from average: 1.3%
 ```
 
-As the calculation above shows, at worst we are excluding 1.3% of the validator set from our analysis. We expect therefore that our calculations of average net reward will not be significantly affected. \[NB: The [code used](epoch_extras.py) to calculate the average rewards and store the relevant data in the chaind database was run prior to running this notebook.\]
+As the calculation above shows, at worst we are excluding 1.3% of the validator set from our analysis. We expect therefore that our calculations of average net reward will not be significantly affected. \[NB: The [code used](https://github.com/pintail-xyz/validator_rewards/blob/main/epoch_extras.py) to calculate the average rewards and store the relevant data in the chaind database was run prior to running this notebook.\]
 
 <details><summary><code>calculate and plot modelled and average rewards [click to view code]</code></summary>
 
@@ -208,7 +208,7 @@ The proportion of validators receiving reward (1) is already described fully by 
 
 We've talked about (4), the inclusion delay reward, before — but our model assumed that 'online' validators would only have their attestations delayed if the earliest inclusion slot had no block. In practice, attestations may be delayed by other factors too — network latency could mean that the block proposer does not receive the attestation in time for inclusion into the earliest block, for example.
 
-For a sense of what this data tells us, let's have a look in detail at the performance of a single validator. We'll start by focusing on a validator from the genesis validator set, [validator 1111](https://beaconcha.in/validator/1111). As usual, we'll be working from the [chaind](https://github.com/wealdtech/chaind) database, but some additional per-validator performance statistics have been compiled using a separate [Python script](validator_epoch_extras.py) and [supporting module](chaind_extras.py).
+For a sense of what this data tells us, let's have a look in detail at the performance of a single validator. We'll start by focusing on a validator from the genesis validator set, [validator 1111](https://beaconcha.in/validator/1111). As usual, we'll be working from the [chaind](https://github.com/wealdtech/chaind) database, but some additional per-validator performance statistics have been compiled using a separate [Python script](https://github.com/pintail-xyz/validator_rewards/blob/main/validator_epoch_extras.py) and [supporting module](https://github.com/pintail-xyz/validator_rewards/blob/main/chaind_extras.py).
 
 <details><summary><code>get attestation efficiency for validator 1111 [click to view code]</code></summary>
 
@@ -643,7 +643,7 @@ with open('validator_performance.csv', 'w') as f:
 
 </details>
 
-For the details of individual validator performance across the whole validator set, a [CSV file](validator_performance.csv) is available. This shows the validator efficiency for each validator over the first 32,000 epochs, and the shortfall break-down (in gwei).
+For the details of individual validator performance across the whole validator set, a [CSV file](https://github.com/pintail-xyz/validator_rewards/blob/main/validator_performance.csv) is available. This shows the validator efficiency for each validator over the first 32,000 epochs, and the shortfall break-down (in gwei).
 
 # Conclusions
 In this article we saw that our previous model for validator rewards was reasonably close to the rewards earned in practice. However, when we delved into the details, we saw that a substantial proportion of the shortfall between what validators earned and what they *could have* earned was due to intricacies of the validator rewards scheme which were not included in the model.

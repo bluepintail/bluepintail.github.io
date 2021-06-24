@@ -7,7 +7,7 @@ header:
 permalink: /posts/validator-rewards-in-practice/
 ---
 
-# Validator Rewards in Practice
+# Evaluating performance
 
 ![jpg](/assets/images/validator-rewards-in-practice_files/henrik-hansen-KoA0M5JOy9o-unsplash.jpg)
 
@@ -446,11 +446,9 @@ output:
     validator count (reduced genesis set): 20993 (70 excluded)
 ```
 
-<details><summary><code>input 10 [click to view code]</code></summary>
+<details><summary><code>calculate validator efficiencies for reduced genesis set [click to view code]</code></summary>
 
 ```python
-# calculate validator efficiencies for reduced genesis set
-
 for v in reduced_genesis_set:
     cursor.execute(
         f"SELECT * FROM t_validator_epoch_extras "

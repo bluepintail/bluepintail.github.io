@@ -338,7 +338,7 @@ print(f"...due to missed attestations: {missed/1e9:.4f} ETH ({100*missed/shortfa
 print(f"...due to incorrect head:      {head/1e9:.4f} ETH ({100*head/shortfall:.1f}%)")
 print(f"...due to incorrect target:    {target/1e9:.4f} ETH ({100*target/shortfall:.1f}%)")
 print(f"...due to excess delay:        {delay/1e9:.4f} ETH ({100*delay/shortfall:.1f}%)")
-print(f"...due to missed proposals:    {missed_props/1e9:.4f} ETH ({100*delay/shortfall:.1f}%)")
+print(f"...due to missed proposals:    {missed_props/1e9:.4f} ETH ({100*missed_props/shortfall:.1f}%)")
 
 fig = plt.figure()
 ax = fig.add_axes([0,0,1,1])
@@ -366,7 +366,7 @@ output:
     ...due to incorrect head:      0.0082 ETH (25.7%)
     ...due to incorrect target:    0.0023 ETH (7.2%)
     ...due to excess delay:        0.0002 ETH (0.7%)
-    ...due to missed proposals:    0.0066 ETH (0.7%)
+    ...due to missed proposals:    0.0066 ETH (20.6%)
 ```
 
 ![png](/assets/images/validator-rewards-in-practice_files/validator-rewards-in-practice_14_1.png)
